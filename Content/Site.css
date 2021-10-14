@@ -1302,6 +1302,10 @@ input[type=range]::-webkit-slider-thumb {
     display: none;
 }
 
+#WifiPasswordPanel, #SelectChannel, #TypeResystancePanel, #TermostatTempSettingPanel, #MinMaxTemp, #Gisteresis {
+    display: none;
+}
+
 @-webkit-keyframes fadeIn {
     from {
         opacity: 0;
