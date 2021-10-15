@@ -747,7 +747,7 @@ function WebSocketOpen(SocketItemDevice) {
             for (let i = 0; ArraySocket.length > i; i++) {
                 if (ArraySocket[i].id === SocketItemDevice.id) {
                     ArraySocket[i].config = MessageJson.config;
-                    if (ArraySocket[0].config != null && ArraySocket[0].config.set === '1') {
+                    if (ArraySocket[0].config != null && ArraySocket[0].config.set === '0') {
                         CurrentSocket = ArraySocket[0];
                         FirstConfigurate = true;
                         FirstSettingsTools();
@@ -842,6 +842,7 @@ function WebSocketOpen(SocketItemDevice) {
                     //    "max_temp": "1",
                     //    "min_temp": "11"
                     //};
+                    NavigationMainMenu();
                     if (!configActive) {
                         SocketItemDevice.channel_number = 0;
                         let DeviceBlockCheck = document.getElementById(ArraySocket[i].id_for_use_ch1);
@@ -864,9 +865,10 @@ function WebSocketOpen(SocketItemDevice) {
                     //    "max_temp": "2",
                     //    "min_temp": "3"
                     //};
+                    NavigationMainMenu();
                     if (!configActive) {
                         SocketItemDevice.channel_number = 1;
-                        let DeviceBlockCheck = document.getElementById(ArraySocket[i].id_for_use_ch1);
+                        let DeviceBlockCheck = document.getElementById(ArraySocket[i].id_for_use_ch2);
                         if (!DeviceBlockCheck)
                             CreateDeviceBlock(SocketItemDevice, ArraySocket[i].type);
                     }
@@ -876,7 +878,7 @@ function WebSocketOpen(SocketItemDevice) {
         }
         if ('update_1ch' in MessageJson /*'update' in MessageJson*/) {
             for (let i = 0; ArraySocket.length > i; i++) {
-                if (ArraySocket[i].id === SocketItemDevice.id & !configActive) {
+                if (ArraySocket[i].id === SocketItemDevice.id & !configActive && SocketItemDevice.type === 'esp32_panel_4inch') {
                     ArraySocket[i].update_1ch = MessageJson.update_1ch;
                     //ArraySocket[i].update_1ch = {
                     //    "type": "thermostat",
@@ -888,7 +890,6 @@ function WebSocketOpen(SocketItemDevice) {
                     //    "newfw": 0,
                     //    "ext_sensor": "online"
                     //};
-                    //SocketItemDevice.channel_number = 0;
                     SocketItemDevice.channel_number = 0;
                     let MaindisplayHeating = document.getElementById(ArraySocket[i].id_for_use_ch1);
                     if (MaindisplayHeating != null) {
@@ -903,7 +904,7 @@ function WebSocketOpen(SocketItemDevice) {
         }
         if ('update_2ch' in MessageJson /*'update' in MessageJson*/) {
             for (let i = 0; ArraySocket.length > i; i++) {
-                if (ArraySocket[i].id === SocketItemDevice.id & !configActive) {
+                if (ArraySocket[i].id === SocketItemDevice.id & !configActive && SocketItemDevice.type === 'esp32_panel_4inch') {
                     ArraySocket[i].update_2ch = MessageJson.update_2ch;
                     //ArraySocket[i].update_2ch = {
                     //    "type": "thermostat",
@@ -1090,7 +1091,7 @@ function NavigationMainMenu() {
 function MainMenuWidgetBtn() {
     MainMenuWidgetArrowUp.forEach(item => item.onclick = function () {
         if (CurrentSocket.type === 'esp32_panel_4inch') {
-            if (CurrentSocket.channel_number)
+            if (!CurrentSocket.channel_number)
                 CurrentSocket.Socket.send(JSON.stringify({ "update_1ch": { "tempUp": 1 } }));
             else
                 CurrentSocket.Socket.send(JSON.stringify({ "update_2ch": { "tempUp": 1 } }));
@@ -1099,7 +1100,7 @@ function MainMenuWidgetBtn() {
     });
     MainMenuWidgetArrowDown.forEach(item => item.onclick = function () {
         if (CurrentSocket.type === 'esp32_panel_4inch') {
-            if (CurrentSocket.channel_number)
+            if (!CurrentSocket.channel_number)
                 CurrentSocket.Socket.send(JSON.stringify({ "update_1ch": { "tempDown": 1 } }));
             else
                 CurrentSocket.Socket.send(JSON.stringify({ "update_2ch": { "tempDown": 1 } }));
@@ -1665,7 +1666,8 @@ function CreateDeviceBlock(Socket, type) {
             TargetSocket = ArraySocket.find(item => item.id === CheckedBlockId);
             let Heating;
             if (TargetSocket != null) {
-                Heating = TargetSocket.update.heating === 'heat' ? 0 : 1;
+                let Update = TargetSocket.type === 'esp32_panel_4inch' ? TargetSocket.channel_number === 0 ? TargetSocket.update_1ch : TargetSocket.update_2ch : TargetSocket.update;
+                Heating = Update.heating === 'heat' ? 0 : 1;
                 this.style.background = Heating === 0 ? '#1F3C62' : '#035CD0';
                 if (TargetSocket.type === 'esp32_panel_4inch') {
                     if (ChannelPanel === 1)
@@ -1776,7 +1778,8 @@ function HeatingRegulate() {
         Heating = CurrentSocket.update.heating === 'heat' ? 1 : 0;
     HeatingTermostat.style.background = Heating === 0 ? '#1F3C62' : '#035CD0';
     HeatingTermostat.onclick = function () {
-        Heating = CurrentSocket.update.heating === 'heat' ? 0 : 1;
+        let Update = CurrentSocket.type === 'esp32_panel_4inch' ? CurrentSocket.channel_number === 0 ? CurrentSocket.update_1ch : CurrentSocket.update_2ch : CurrentSocket.update;
+        Heating = Update.heating === 'heat' ? 0 : 1;
         this.style.background = Heating === 0 ? '#1F3C62' : '#035CD0';
         if (CurrentSocket.type === 'esp32_panel_4inch') {
             if (!CurrentSocket.channel_number)
