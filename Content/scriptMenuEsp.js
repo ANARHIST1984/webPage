@@ -1249,7 +1249,7 @@ function ChangeTargetTemp() {
         }
     } else if (CurrentSocket.type === 'esp32_panel_4inch') {
         if (Number(CurrentSocket.config.is_target_temp_first)) {
-            if (CurrentSocket.channel_number) {
+            if (!CurrentSocket.channel_number) {
                 MainMenuWidgetValueTemp.innerHTML = CurrentSocket.update_1ch.target_temp + '°';
                 MainMenuTempValue.innerHTML = CurrentSocket.update_1ch.temp + '°';
             } else {
@@ -1259,7 +1259,7 @@ function ChangeTargetTemp() {
 
         }
         else {
-            if (CurrentSocket.channel_number) {
+            if (!CurrentSocket.channel_number) {
                 MainMenuWidgetValueTemp.innerHTML = CurrentSocket.update_1ch.target_temp + '°';
                 MainMenuTempValue.innerHTML = CurrentSocket.update_1ch.temp + '°';
             } else {
@@ -1783,9 +1783,9 @@ function HeatingRegulate() {
         this.style.background = Heating === 0 ? '#1F3C62' : '#035CD0';
         if (CurrentSocket.type === 'esp32_panel_4inch') {
             if (!CurrentSocket.channel_number)
-                CurrentSocket.Socket.send(JSON.stringify({ "config_1ch": { "heating": Heating } }));
+                CurrentSocket.Socket.send(JSON.stringify({ "update_1ch": { "heating": Heating } }));
             else
-                CurrentSocket.Socket.send(JSON.stringify({ "config_2ch": { "heating": Heating } }));
+                CurrentSocket.Socket.send(JSON.stringify({ "update_2ch": { "heating": Heating } }));
         } else
             CurrentSocket.Socket.send(JSON.stringify({ "heating": Heating }));
     }
