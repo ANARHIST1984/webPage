@@ -445,7 +445,7 @@ function InsertSensors() {
     let ChannlePanel = null;
     let SensorModelId;
     if (CurrentSocket.type === 'esp32_panel_4inch') {
-        ChannlePanel = CurrentSocket.channel_number === 0 ? CurrentSocket.config_1ch : CurrentSocket.config_1ch;
+        ChannlePanel = CurrentSocket.channel_number === 0 ? CurrentSocket.config_1ch : CurrentSocket.config_2ch;
         SensorModelId = ChannlePanel.sensor_model_id;
     } else {
         SensorModelId = CurrentSocket.config.sensor_model_id;
