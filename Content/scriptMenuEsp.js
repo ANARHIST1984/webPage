@@ -1235,7 +1235,7 @@ function ConnectInnerSensor() {
     }
 }
 function ChangeTargetTemp() {
-    let TypeWidgetTemp = CurrentSocket.type === 'esp8266_thermostat' ? document.getElementById('MainDisplayTermostat') : document.getElementById('MainDisplayConditioner');
+    let TypeWidgetTemp = CurrentSocket.type === 'esp8266_thermostat' || CurrentSocket.type === 'esp32_panel_4inch' ? document.getElementById('MainDisplayTermostat') : document.getElementById('MainDisplayConditioner');
     let MainMenuWidgetValueTemp = TypeWidgetTemp.getElementsByClassName('MainMenuWidgetValueTemp')[0];
     let MainMenuTempValue = TypeWidgetTemp.getElementsByClassName('MainMenuTempValue')[0];
     if (CurrentSocket.type === 'esp8266_thermostat') {
