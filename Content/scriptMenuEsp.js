@@ -896,9 +896,11 @@ function WebSocketOpen(SocketItemDevice) {
                         MaindisplayHeating.querySelector('.HeatingTermostatByID').style.background = ArraySocket[i].update_1ch.heating === 'off' ? '#1F3C62' : '#035CD0';
                     }
                     SetMainDisplay(ArraySocket[i]);
-                    //ChangeTargetTemp();
-                    if (CurrentSocket != null)
+                    if (CurrentSocket != null) {
                         HeatingRegulate();
+                        ChangeTargetTemp();
+                    }
+                        
                 }
             }
         }
@@ -922,9 +924,10 @@ function WebSocketOpen(SocketItemDevice) {
                         MaindisplayHeating.querySelector('.HeatingTermostatByID').style.background = ArraySocket[i].update_1ch.heating === 'off' ? '#1F3C62' : '#035CD0';
                     }
                     SetMainDisplay(ArraySocket[i]);
-                    //ChangeTargetTemp();
-                    if (CurrentSocket != null)
+                    if (CurrentSocket != null) {
                         HeatingRegulate();
+                        ChangeTargetTemp();
+                    }
                 }
             }
         }
@@ -1661,7 +1664,7 @@ function CreateDeviceBlock(Socket, type) {
         DeviceBlockControlTablo.onclick = function (event) {
             event.stopPropagation();
             CurrentBlockID = this.parentElement.parentElement.id;
-            let ChannelPanel = CurrentBlockID.includes('type_1ch') ? 1 : 2;
+            let ChannelPanel = CurrentBlockID.includes('type_1ch') ? 0 : 1;
             let CheckedBlockId = CurrentBlockID.includes('type_1ch') || CurrentBlockID.includes('type_2ch') ? CurrentBlockID.substr(0, CurrentBlockID.length - 8) : CurrentBlockID;
             TargetSocket = ArraySocket.find(item => item.id === CheckedBlockId);
             let Heating;
@@ -1670,18 +1673,10 @@ function CreateDeviceBlock(Socket, type) {
                 Heating = Update.heating === 'heat' ? 0 : 1;
                 this.style.background = Heating === 0 ? '#1F3C62' : '#035CD0';
                 if (TargetSocket.type === 'esp32_panel_4inch') {
-                    if (ChannelPanel === 1)
-                        TargetSocket.Socket.send(JSON.stringify({
-                            "update_1ch": {
-                                "heating": Heating
-                            }
-                        }));
+                    if (!ChannelPanel)
+                        TargetSocket.Socket.send(JSON.stringify({ "update_1ch": { "heating": Heating } }));
                     else
-                        TargetSocket.Socket.send(JSON.stringify({
-                            "update_2ch": {
-                                "heating": Heating
-                            }
-                        }));
+                        TargetSocket.Socket.send(JSON.stringify({ "update_2ch": { "heating": Heating } }));
                 } else {
                     TargetSocket.Socket.send(JSON.stringify({
                         "heating": Heating
@@ -1778,8 +1773,16 @@ function HeatingRegulate() {
         Heating = CurrentSocket.update.heating === 'heat' ? 1 : 0;
     HeatingTermostat.style.background = Heating === 0 ? '#1F3C62' : '#035CD0';
     HeatingTermostat.onclick = function () {
-        let Update = CurrentSocket.type === 'esp32_panel_4inch' ? CurrentSocket.channel_number === 0 ? CurrentSocket.update_1ch : CurrentSocket.update_2ch : CurrentSocket.update;
-        Heating = Update.heating === 'heat' ? 0 : 1;
+        //let Update = CurrentSocket.type === 'esp32_panel_4inch' ? CurrentSocket.channel_number === 0 ? CurrentSocket.update_1ch : CurrentSocket.update_2ch : CurrentSocket.update;
+        let Heating = null;
+        if (CurrentSocket.type === 'esp32_panel_4inch') {
+            if (!CurrentSocket.channel_number)
+                Heating = CurrentSocket.update_1ch.heating === 'heat' ? 1 : 0;
+            else
+                Heating = CurrentSocket.update_2ch.heating === 'heat' ? 1 : 0;
+        } else
+            Heating = CurrentSocket.update.heating === 'heat' ? 1 : 0;
+        //Heating = Update.heating === 'heat' ? 0 : 1;
         this.style.background = Heating === 0 ? '#1F3C62' : '#035CD0';
         if (CurrentSocket.type === 'esp32_panel_4inch') {
             if (!CurrentSocket.channel_number)
