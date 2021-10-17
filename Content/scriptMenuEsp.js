@@ -1669,7 +1669,7 @@ function CreateDeviceBlock(Socket, type) {
             TargetSocket = ArraySocket.find(item => item.id === CheckedBlockId);
             let Heating;
             if (TargetSocket != null) {
-                let Update = TargetSocket.type === 'esp32_panel_4inch' ? TargetSocket.channel_number === 0 ? TargetSocket.update_1ch : TargetSocket.update_2ch : TargetSocket.update;
+                let Update = TargetSocket.type === 'esp32_panel_4inch' ? ChannelPanel === 0 ? TargetSocket.update_1ch : TargetSocket.update_2ch : TargetSocket.update;
                 Heating = Update.heating === 'heat' ? 0 : 1;
                 this.style.background = Heating === 0 ? '#1F3C62' : '#035CD0';
                 if (TargetSocket.type === 'esp32_panel_4inch') {
