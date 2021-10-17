@@ -1777,11 +1777,11 @@ function HeatingRegulate() {
         let Heating = null;
         if (CurrentSocket.type === 'esp32_panel_4inch') {
             if (!CurrentSocket.channel_number)
-                Heating = CurrentSocket.update_1ch.heating === 'heat' ? 1 : 0;
+                Heating = CurrentSocket.update_1ch.heating === 'heat' ? 0 : 1;
             else
-                Heating = CurrentSocket.update_2ch.heating === 'heat' ? 1 : 0;
+                Heating = CurrentSocket.update_2ch.heating === 'heat' ? 0 : 1;
         } else
-            Heating = CurrentSocket.update.heating === 'heat' ? 1 : 0;
+            Heating = CurrentSocket.update.heating === 'heat' ? 0 : 1;
         //Heating = Update.heating === 'heat' ? 0 : 1;
         this.style.background = Heating === 0 ? '#1F3C62' : '#035CD0';
         if (CurrentSocket.type === 'esp32_panel_4inch') {
