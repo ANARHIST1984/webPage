@@ -890,12 +890,12 @@ function WebSocketOpen(SocketItemDevice) {
                     //    "newfw": 0,
                     //    "ext_sensor": "online"
                     //};
-                    SocketItemDevice.channel_number = 0;
+                    ArraySocket[i].channel_number = 0;
                     let MaindisplayHeating = document.getElementById(ArraySocket[i].id_for_use_ch1);
                     if (MaindisplayHeating != null) {
                         MaindisplayHeating.querySelector('.HeatingTermostatByID').style.background = ArraySocket[i].update_1ch.heating === 'off' ? '#1F3C62' : '#035CD0';
                     }
-                    SetMainDisplay(ArraySocket[i]);
+                    SetMainDisplay(SocketItemDevice);
                     if (CurrentSocket != null) {
                         HeatingRegulate();
                         ChangeTargetTemp();
@@ -918,12 +918,12 @@ function WebSocketOpen(SocketItemDevice) {
                     //    "newfw": 0,
                     //    "ext_sensor": "online"
                     //};
-                    SocketItemDevice.channel_number = 1;
+                    ArraySocket[i].channel_number = 1;
                     let MaindisplayHeating = document.getElementById(ArraySocket[i].id_for_use_ch2);
                     if (MaindisplayHeating != null) {
                         MaindisplayHeating.querySelector('.HeatingTermostatByID').style.background = ArraySocket[i].update_2ch.heating === 'off' ? '#1F3C62' : '#035CD0';
                     }
-                    SetMainDisplay(ArraySocket[i]);
+                    SetMainDisplay(SocketItemDevice);
                     if (CurrentSocket != null) {
                         HeatingRegulate();
                         ChangeTargetTemp();
