@@ -919,7 +919,7 @@ function WebSocketOpen(SocketItemDevice) {
                     //    "ext_sensor": "online"
                     //};
                     SocketItemDevice.channel_number = 1;
-                    let MaindisplayHeating = document.getElementById(ArraySocket[i].id_for_use_ch1);
+                    let MaindisplayHeating = document.getElementById(ArraySocket[i].id_for_use_ch2);
                     if (MaindisplayHeating != null) {
                         MaindisplayHeating.querySelector('.HeatingTermostatByID').style.background = ArraySocket[i].update_1ch.heating === 'off' ? '#1F3C62' : '#035CD0';
                     }
@@ -2022,7 +2022,6 @@ function AliceSet() {
                     }
                 ));
             }
-
         }
     }
     if (ArraySocket[0].config != undefined) {
