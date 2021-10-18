@@ -832,7 +832,7 @@ function WebSocketOpen(SocketItemDevice) {
         }
         if ('config_1ch' in MessageJson /*'config' in MessageJson*/) {
             for (let i = 0; ArraySocket.length > i; i++) {
-                if (ArraySocket[i].id === SocketItemDevice.id) {
+                if (ArraySocket[i].id === SocketItemDevice.id && !PanelMenu) {
                     ArraySocket[i].config_1ch = MessageJson.config_1ch;
                     //ArraySocket[i].config_1ch = {
                     //    "type": "thermostat",
@@ -855,7 +855,7 @@ function WebSocketOpen(SocketItemDevice) {
         }
         if ('config_2ch' in MessageJson /*'config' in MessageJson*/) {
             for (let i = 0; ArraySocket.length > i; i++) {
-                if (ArraySocket[i].id === SocketItemDevice.id) {
+                if (ArraySocket[i].id === SocketItemDevice.id && !PanelMenu) {
                     ArraySocket[i].config_2ch = MessageJson.config_2ch;
                     //ArraySocket[i].config_2ch = {
                     //    "type": "thermostat",
@@ -1768,7 +1768,7 @@ function HeatingRegulate() {
         if (!CurrentSocket.channel_number)
             Heating = CurrentSocket.update_1ch.heating === 'heat' ? 1 : 0;
         else
-            Heating = CurrentSocket.update_1ch.heating === 'heat' ? 1 : 0;
+            Heating = CurrentSocket.update_2ch.heating === 'heat' ? 1 : 0;
     } else
         Heating = CurrentSocket.update.heating === 'heat' ? 1 : 0;
     HeatingTermostat.style.background = Heating === 0 ? '#1F3C62' : '#035CD0';
