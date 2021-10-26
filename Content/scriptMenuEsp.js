@@ -745,6 +745,7 @@ function ChangeTempDynamic() {
 window.onload = function () {
     ArraySocket.push(ArraySocketItem = {
         Socket: new WebSocket("ws://" + location.host + "/ws"),
+        //Socket: new WebSocket("ws://192.168.1.42/ws"),
         //id: "15299390",
         //type: "esp8266_thermostat",
         //type: "esp8266_air",
