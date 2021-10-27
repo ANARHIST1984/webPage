@@ -1234,16 +1234,16 @@ function UpdateSet() {
         InputName = document.getElementById('NameInput');
         InputName.value = CurrentSocket.config.name;
     }
-    if (CurrentSocket.type != 'esp32_panel_4inch' && CurrentSocket.update.newfw != '0') {
-        UpdateMarker.style.display = 'flex';
-        UpdateLytkoBtn.removeAttribute('disabled');
-        UpdateLytkoBtn.style.background = '#035CD0';
-    }
-    else {
-        UpdateMarker.style.display = 'none';
-        UpdateLytkoBtn.setAttribute('disabled', 'disabled');
-        UpdateLytkoBtn.style.background = '#1F3C62';
-    }
+    //if (CurrentSocket.type != 'esp32_panel_4inch' && CurrentSocket.update.newfw != '0') {
+    //    UpdateMarker.style.display = 'flex';
+    //    UpdateLytkoBtn.removeAttribute('disabled');
+    //    UpdateLytkoBtn.style.background = '#035CD0';
+    //}
+    //else {
+    //    UpdateMarker.style.display = 'none';
+    //    UpdateLytkoBtn.setAttribute('disabled', 'disabled');
+    //    UpdateLytkoBtn.style.background = '#1F3C62';
+    //}
     ChooseUpdateFileBtn.onclick = function () {
         window.location.href = "//" + CurrentSocket.ip + "/manual_update";
     }
