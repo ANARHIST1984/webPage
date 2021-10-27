@@ -529,7 +529,7 @@ function InsertSensors() {
     let ChannlePanel = null;
     let SensorModelId;
     if (CurrentSocket.type === 'esp32_panel_4inch') {
-        ChannlePanel = CurrentSocket.channel_number === 0 ? CurrentSocket.config_1ch : CurrentSocket.config_2ch;
+        ChannlePanel = CurrentSocket.active_channel === 0 ? CurrentSocket.config_1ch : CurrentSocket.config_2ch;
         SensorModelId = ChannlePanel.sensor_model_id;
     } else {
         SensorModelId = CurrentSocket.config.sensor_model_id;
@@ -744,8 +744,8 @@ function ChangeTempDynamic() {
 }
 window.onload = function () {
     ArraySocket.push(ArraySocketItem = {
-        Socket: new WebSocket("ws://" + location.host + "/ws"),
         //Socket: new WebSocket("ws://192.168.1.42/ws"),
+        Socket: new WebSocket("ws://" + location.host + "/ws"),
         //id: "15299390",
         //type: "esp8266_thermostat",
         //type: "esp8266_air",
@@ -763,6 +763,7 @@ window.onload = function () {
         id_for_use_ch1: null,
         id_for_use_ch2: null,
         channel_number: null,
+        active_channel: null,
         update_1ch: null,
         update_2ch: null
     });
@@ -809,7 +810,7 @@ function WebSocketOpen(SocketItemDevice) {
                         ArraySocket[i].id_for_use_ch2 = MessageJson.ssdp[i].id + 'type_2ch';
                         ArraySocket[i].ip = MessageJson.ssdp[i].ip;
                         ArraySocket[i].type_1ch = MessageJson.ssdp[i].type_1ch != undefined ? MessageJson.ssdp[i].type_1ch : null;
-                        ArraySocket[i].type_2ch = MessageJson.ssdp[i].type_2ch != undefined ? MessageJson.ssdp[i].type_2ch : null;
+                        ArraySocket[i].type_2ch = 'lightUpdateLytkoBtn';//MessageJson.ssdp[i].type_2ch != undefined ? MessageJson.ssdp[i].type_2ch : null;
                     } else if (ArraySocket.find(item => item.id === MessageJson.ssdp[i].id) === undefined) {
                         ArraySocket.push(ArraySocketItem = {
                             Socket: new WebSocket("ws://" + MessageJson.ssdp[i].ip + "/ws"),
@@ -1151,7 +1152,7 @@ function NavigationMainMenu() {
 function MainMenuWidgetBtn() {
     MainMenuWidgetArrowUp.forEach(item => item.onclick = function () {
         if (CurrentSocket.type === 'esp32_panel_4inch') {
-            if (!CurrentSocket.channel_number)
+            if (!CurrentSocket.active_channel)
                 CurrentSocket.Socket.send(JSON.stringify({ "update_1ch": { "tempUp": 1 } }));
             else
                 CurrentSocket.Socket.send(JSON.stringify({ "update_2ch": { "tempUp": 1 } }));
@@ -1160,7 +1161,7 @@ function MainMenuWidgetBtn() {
     });
     MainMenuWidgetArrowDown.forEach(item => item.onclick = function () {
         if (CurrentSocket.type === 'esp32_panel_4inch') {
-            if (!CurrentSocket.channel_number)
+            if (!CurrentSocket.active_channel)
                 CurrentSocket.Socket.send(JSON.stringify({ "update_1ch": { "tempDown": 1 } }));
             else
                 CurrentSocket.Socket.send(JSON.stringify({ "update_2ch": { "tempDown": 1 } }));
@@ -1305,7 +1306,7 @@ function ChangeTargetTemp() {
         }
     } else if (CurrentSocket.type === 'esp32_panel_4inch') {
         if (Number(CurrentSocket.config.is_target_temp_first)) {
-            if (!CurrentSocket.channel_number) {
+            if (!CurrentSocket.active_channel) {
                 MainMenuWidgetValueTemp.innerHTML = CurrentSocket.update_1ch.target_temp + '°';
                 MainMenuTempValue.innerHTML = CurrentSocket.update_1ch.temp + '°';
             } else {
@@ -1315,7 +1316,7 @@ function ChangeTargetTemp() {
 
         }
         else {
-            if (!CurrentSocket.channel_number) {
+            if (!CurrentSocket.active_channel) {
                 MainMenuWidgetValueTemp.innerHTML = CurrentSocket.update_1ch.target_temp + '°';
                 MainMenuTempValue.innerHTML = CurrentSocket.update_1ch.temp + '°';
             } else {
@@ -1372,7 +1373,16 @@ function InsertMqtt() {
             AdressMqtt.value = CurrentSocket.config.mqtt_server;
             PortMqtt.value = CurrentSocket.config.mqtt_port;
             LoginMqtt.value = CurrentSocket.config.mqtt_login;
-            var updateString = '{<br />&nbsp;&nbsp;"update": {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "temp": ' + CurrentSocket.update.temp + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "target_temp": ' + CurrentSocket.update.target_temp + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "relay": ' + CurrentSocket.update.relay + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"heating": ' + CurrentSocket.update.heating + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "name": ' + CurrentSocket.update.name + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "unit": ' + CurrentSocket.update.unit + ' <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} <br />}';
+            var updateString;
+            if (CurrentSocket.type === 'esp32_panel_4inch') {
+                if (CurrentSocket.active_channel === 0) {
+                    updateString = '{<br />&nbsp;&nbsp;"update_ch1": {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "temp": ' + CurrentSocket.update_1ch.temp + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "target_temp": ' + CurrentSocket.update_1ch.target_temp + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "relay": ' + CurrentSocket.update_1ch.relay + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"heating": ' + CurrentSocket.update_1ch.heating + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "unit": ' + CurrentSocket.update_1ch.unit + ' <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} <br />}';
+                } else {
+                    updateString = '{<br />&nbsp;&nbsp;"update_ch1": {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "temp": ' + CurrentSocket.update_2ch.temp + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "target_temp": ' + CurrentSocket.update_2ch.target_temp + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "relay": ' + CurrentSocket.update_2ch.relay + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"heating": ' + CurrentSocket.update_2ch.heating + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "unit": ' + CurrentSocket.update_2ch.unit + ' <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} <br />}';
+                }
+            } else {
+                updateString = '{<br />&nbsp;&nbsp;"update": {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "temp": ' + CurrentSocket.update.temp + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "target_temp": ' + CurrentSocket.update.target_temp + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "relay": ' + CurrentSocket.update.relay + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"heating": ' + CurrentSocket.update.heating + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "name": ' + CurrentSocket.update.name + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "unit": ' + CurrentSocket.update.unit + ' <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} <br />}';
+            }
             UpdateSocketBlock.innerHTML = updateString;
         }
         else {
@@ -1452,7 +1462,7 @@ function InsertTemp() {
     let MaxTemp;
     let MinTemp;
     if (CurrentSocket.type === 'esp32_panel_4inch') {
-        let ChannelData = CurrentSocket.channel_number === 0 ? CurrentSocket.config_1ch : CurrentSocket.config_2ch;
+        let ChannelData = CurrentSocket.active_channel === 0 ? CurrentSocket.config_1ch : CurrentSocket.config_2ch;
         Correction = ChannelData.sensor_corr;
         Gisteresis = ChannelData.hysteresis;
         MaxTemp = ChannelData.max_temp;
@@ -1473,12 +1483,12 @@ function InsertTemp() {
     MinTablo.innerHTML = MinTemp;
     ChangeTempPositionBtn.onclick = function () {
         let ChangeTempPositionPopUp = document.getElementById('ChangeTempPositionPopUp');
-        let TagetTemp = CurrentSocket.type === 'esp32_panel_4inch' ? CurrentSocket.channel_number === 0 ? CurrentSocket.config_1ch.is_target_temp_first : CurrentSocket.config_2ch.is_target_temp_first : CurrentSocket.config.is_target_temp_first;
+        let TagetTemp = CurrentSocket.type === 'esp32_panel_4inch' ? CurrentSocket.active_channel === 0 ? CurrentSocket.config_1ch.is_target_temp_first : CurrentSocket.config_2ch.is_target_temp_first : CurrentSocket.config.is_target_temp_first;
         TogglePopUp(ChangeTempPositionPopUp);
         if (TagetTemp === '0') {
             if (CurrentSocket.type != 'esp32_panel_4inch')
                 CurrentSocket.Socket.send(JSON.stringify({ is_target_temp_first: 0 }));
-            else if (!CurrentSocket.channel_number) {
+            else if (!CurrentSocket.active_channel) {
                 CurrentSocket.Socket.send(JSON.stringify({
                     "config_1ch": {
                         "is_target_temp_first": "0"
@@ -1495,7 +1505,7 @@ function InsertTemp() {
         else {
             if (CurrentSocket.type != 'esp32_panel_4inch')
                 CurrentSocket.Socket.send(JSON.stringify({ is_target_temp_first: 1 }));
-            else if (!CurrentSocket.channel_number) {
+            else if (!CurrentSocket.active_channel) {
                 CurrentSocket.Socket.send(JSON.stringify({
                     "config_1ch": {
                         "is_target_temp_first": "1"
@@ -1733,6 +1743,7 @@ function CreateDeviceBlock(Socket, type) {
                 let BlockId = this.id.includes('type_1ch') || this.id.includes('type_2ch') ? this.id.substr(0, this.id.length - 8) : this.id;
                 if (item.id === BlockId) {
                     item.channel_number = this.id.includes('type_1ch') ? 0 : 1;
+                    item.active_channel = this.id.includes('type_1ch') ? 0 : 1;
                     return item;
                 }
             });
@@ -1843,7 +1854,7 @@ function FanSetMainDisplay(Socket, Fan) {
 function HeatingRegulate() {
     let Heating = null;
     if (CurrentSocket.type === 'esp32_panel_4inch') {
-        if (!CurrentSocket.channel_number)
+        if (!CurrentSocket.active_channel)
             Heating = CurrentSocket.update_1ch.heating === 'heat' ? 1 : 0;
         else
             Heating = CurrentSocket.update_2ch.heating === 'heat' ? 1 : 0;
@@ -1854,7 +1865,7 @@ function HeatingRegulate() {
         //let Update = CurrentSocket.type === 'esp32_panel_4inch' ? CurrentSocket.channel_number === 0 ? CurrentSocket.update_1ch : CurrentSocket.update_2ch : CurrentSocket.update;
         let Heating = null;
         if (CurrentSocket.type === 'esp32_panel_4inch') {
-            if (!CurrentSocket.channel_number)
+            if (!CurrentSocket.active_channel)
                 Heating = CurrentSocket.update_1ch.heating === 'heat' ? 0 : 1;
             else
                 Heating = CurrentSocket.update_2ch.heating === 'heat' ? 0 : 1;
@@ -1863,7 +1874,7 @@ function HeatingRegulate() {
         //Heating = Update.heating === 'heat' ? 0 : 1;
         this.style.background = Heating === 0 ? '#1F3C62' : '#035CD0';
         if (CurrentSocket.type === 'esp32_panel_4inch') {
-            if (!CurrentSocket.channel_number)
+            if (!CurrentSocket.active_channel)
                 CurrentSocket.Socket.send(JSON.stringify({ "update_1ch": { "heating": Heating } }));
             else
                 CurrentSocket.Socket.send(JSON.stringify({ "update_2ch": { "heating": Heating } }));
