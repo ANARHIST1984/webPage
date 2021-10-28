@@ -173,7 +173,6 @@ var configPanelChannel = {
     },
 }
 let TypeChannelSelect;
-console.log(getKeyByValue(SensorIdCollection, 5));
 function getKeyByValue(object, value) {
     return Object.keys(object).find(key => object[key] === value);
 }
@@ -220,11 +219,11 @@ function FirstSettingsTools() {
         }
     } else if (CurrentSocket.type === 'esp32_panel_4inch') {
         SelectTypePanelChannel(SelectingTypeChannel[0]);
-        SelectingTypeChannel.forEach(item => {
-            item.onclick = function () {
-                SelectTypePanelChannel(this);
-            }
-        });
+        //SelectingTypeChannel.forEach(item => {
+        //    //item.onclick = function () {
+        //    //    SelectTypePanelChannel(this);
+        //    //}
+        //});
         let ResistanceKey = getKeyByValue(SensorIdCollection, 4);
         let ResistanceItem = SearchByHtmlCollectionByIdOrNull(TypeResistanceBlocks, ResistanceKey);
         if (ResistanceItem != null) {
@@ -281,7 +280,7 @@ function FirstSettingsTools() {
         FirstGisteresisSetting.onclick = function () { SwitchElem(FourStageSettingDissapearElem, GisteresisStageSetting); }
         FirstTempSetting.onclick = function () { SwitchElem(FourStageSettingDissapearElem, TempStageSetting); }
     }
-
+    InDevelopFunction.forEach(item => item.onclick = ShowInDevelop);
 }
 function SelectTypePanelChannel(item) {
     SelectingTypeChannel.forEach(item => item.querySelector('.SelectedIcon').style.display = 'none');
@@ -377,7 +376,7 @@ function PanelSettingNav() {
             }
         }
         if (ClassName === 'TypeResystancePanel' || ClassName === 'TermostatTempSettingPanel') {
-            if (!FirstChannelSelectChecker) {
+            if (!FirstChannelSelectChecker & CurrentSocket.type_2ch != 'none') {
                 NextGisterSetting.style.display = 'block';
                 GisterCompleteSettings.style.display = 'none';
 
@@ -473,7 +472,6 @@ function SelectResistance(Item) {
             SensorSelector.querySelectorAll('.SelectedIcon').forEach(item => item.id != 'InnerSensorIcon' ? item.style.display = 'none' : false);
             Item.children[1].style.display = 'block';
             configTermostat.config.sensor_model_id = SensorIdCollection[Item.id];
-            //console.log(configTermostat.config.sensor_model_id);
             if (FirstChannelSelectChecker === 1) {
                 configPanelChannel.ConfCh2.config_2ch.sensor_model_id = SensorIdCollection[Item.id];
             } else {
@@ -493,10 +491,6 @@ function SelectResistance(Item) {
                 SetLoader(10, function () { location.host = location.host; });
             }
         }
-        //else {
-        //    Item.children[1].style.display = 'none';
-        //    configTermostat.config.sensor_model_id = null;
-        //}
     }
     else {
         if (checkedSelectedIcon === 'none' || checkedSelectedIcon === '') {
@@ -744,8 +738,8 @@ function ChangeTempDynamic() {
 }
 window.onload = function () {
     ArraySocket.push(ArraySocketItem = {
-        //Socket: new WebSocket("ws://192.168.1.42/ws"),
-        Socket: new WebSocket("ws://" + location.host + "/ws"),
+        Socket: new WebSocket("ws://192.168.1.42/ws"),
+        //Socket: new WebSocket("ws://" + location.host + "/ws"),
         //id: "15299390",
         //type: "esp8266_thermostat",
         //type: "esp8266_air",
@@ -779,9 +773,7 @@ let swuthheat1 = true;
 let swuthheat = false;
 let DeviceConfigArray = new Array();
 function WebSocketOpen(SocketItemDevice) {
-    console.log("Opening WebSocket..");
     SocketItemDevice.Socket.onopen = function (evt) {
-        console.log("WebSocket is open.");
     };
     SocketItemDevice.Socket.onerror = function (error) {
         console.log("Error " + error.message)
@@ -797,7 +789,6 @@ function WebSocketOpen(SocketItemDevice) {
     };
     SocketItemDevice.Socket.onmessage = function (event) {
         var MessageJson = JSON.parse(event.data);
-        console.log(MessageJson);
         if ('ssdp' in MessageJson) {
             if (ArraySocket[0].Socket === this) {
                 for (let i = 0; MessageJson.ssdp.length > i; i++) {
@@ -847,7 +838,6 @@ function WebSocketOpen(SocketItemDevice) {
                         }
                     }
                     else if (configActive === 0) {
-                        console.log(location.host);
                         let DeviceBlockCheck = document.getElementById(ArraySocket[i].id);
                         if (!DeviceBlockCheck && ArraySocket[i].type != 'esp32_panel_4inch')
                             CreateDeviceBlock(SocketItemDevice, ArraySocket[i].type);
@@ -910,7 +900,27 @@ function WebSocketOpen(SocketItemDevice) {
                     ArraySocket[i].mqtt_topics = MessageJson.mqtt_topics;
                 }
             }
-
+        }
+        if ('mqtt_topics_1ch' in MessageJson) {
+            for (let i = 0; ArraySocket.length > i; i++) {
+                if (ArraySocket[i].id === SocketItemDevice.id) {
+                    ArraySocket[i].mqtt_topics = MessageJson.mqtt_topics;
+                }
+            }
+        }
+        if ('mqtt_topics_2ch' in MessageJson) {
+            for (let i = 0; ArraySocket.length > i; i++) {
+                if (ArraySocket[i].id === SocketItemDevice.id) {
+                    ArraySocket[i].mqtt_topics = MessageJson.mqtt_topics;
+                }
+            }
+        }
+        if ('zigbee' in MessageJson) {
+            for (let i = 0; ArraySocket.length > i; i++) {
+                if (ArraySocket[i].id === SocketItemDevice.id) {
+                    ArraySocket[i].zigbee = MessageJson.zigbee;
+                }
+            }
         }
         if ('qr_hk' in MessageJson) {
             for (let i = 0; ArraySocket.length > i; i++) {
@@ -1005,7 +1015,33 @@ function WebSocketOpen(SocketItemDevice) {
                                 unit: MessageJson.mqtt_data[i].unit[index],
                                 data: MessageJson.mqtt_data[i].data[index],
                                 ShotAddr: MessageJson.mqtt_data[i].ShotAddr,
-                                id: MessageJson.mqtt_data[i].type + MessageJson.mqtt_data[i].ShotAddr + i
+                                id: MessageJson.mqtt_data[i].type[index] + MessageJson.mqtt_data[i].ShotAddr + i
+                            });
+                        }
+                        for (let indexCurrentArray = 0; CurrentSensorArray.length > indexCurrentArray; indexCurrentArray++) {
+                            let CompleteChecked = CreateSensorBlockOrFalse(CurrentSensorArray[indexCurrentArray]);
+                            if (!CompleteChecked) {
+                                UpdateSensorValue(CurrentSensorArray[indexCurrentArray]);
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+        if ('zigbee_data' in MessageJson) {
+            if (MessageJson.zigbee_data != undefined & MessageJson.zigbee_data != '{}' & configActive === 0) {
+                SensorsLine.style.display = 'flex';
+                for (let i = 0; 4 > i; i++) {
+                    if (MessageJson.zigbee_data[i] != undefined) {
+                        let CurrentSensorArray = new Array;
+                        for (let index = 0; MessageJson.zigbee_data[i].type.length > index; index++) {
+                            CurrentSensorArray.push({
+                                type: MessageJson.zigbee_data[i].type[index],
+                                unit: MessageJson.zigbee_data[i].unit[index],
+                                data: MessageJson.zigbee_data[i].data[index],
+                                ShotAddr: MessageJson.zigbee_data[i].ShotAddr,
+                                id: MessageJson.zigbee_data[i].type[index] + MessageJson.zigbee_data[i].ShotAddr + i
                             });
                         }
                         for (let indexCurrentArray = 0; CurrentSensorArray.length > indexCurrentArray; indexCurrentArray++) {
@@ -1100,7 +1136,6 @@ function ShowMainMenuBySocket(Socket) {
     ShowWifiConnectMarker()
     PairHk();
     UpdateSet();
-    ZigBeeSet();
     NavigationDevice();
     ConnectInnerSensor();
     InsertExternalInnerSensor();
@@ -1114,6 +1149,9 @@ function ShowMainMenuBySocket(Socket) {
     }
     if (Socket.type === 'esp8266_thermostat' || Socket.type === 'esp32_panel_4inch') {
         InsertSensors();
+        if (Socket.type === 'esp32_panel_4inch') {
+            ZigBeeSet();
+        }
     }
     DropSettings.onclick = function () {
         CurrentSocket.Socket.send(JSON.stringify("reset"));
@@ -1136,7 +1174,8 @@ function SetUpdateInformation() {
     let AccessVersion = LytkoUpdateInformation.querySelector('.AccessVersion');
     let IdDevice = LytkoUpdateInformation.querySelector('.IdDevice');
     CurrentVersion.innerHTML = 'Текущая версия ' + CurrentSocket.config.version;
-    AccessVersion.innerHTML = 'Доступно обновление ' + CurrentSocket.config.version_new;
+    if (CurrentSocket.config.link != '')
+        AccessVersion.innerHTML = 'Доступно обновление ' + CurrentSocket.config.version_new;
     IdDevice.innerHTML = 'Id устройства ' + CurrentSocket.id;
 }
 function NavigationMainMenu() {
@@ -1235,16 +1274,16 @@ function UpdateSet() {
         InputName = document.getElementById('NameInput');
         InputName.value = CurrentSocket.config.name;
     }
-    //if (CurrentSocket.type != 'esp32_panel_4inch' && CurrentSocket.update.newfw != '0') {
-    //    UpdateMarker.style.display = 'flex';
-    //    UpdateLytkoBtn.removeAttribute('disabled');
-    //    UpdateLytkoBtn.style.background = '#035CD0';
-    //}
-    //else {
-    //    UpdateMarker.style.display = 'none';
-    //    UpdateLytkoBtn.setAttribute('disabled', 'disabled');
-    //    UpdateLytkoBtn.style.background = '#1F3C62';
-    //}
+    if (CurrentSocket.type != 'esp32_panel_4inch' && CurrentSocket.config.link === '') {
+        UpdateMarker.style.display = 'flex';
+        UpdateLytkoBtn.removeAttribute('disabled');
+        UpdateLytkoBtn.style.background = '#035CD0';
+    }
+    else {
+        UpdateMarker.style.display = 'none';
+        UpdateLytkoBtn.setAttribute('disabled', 'disabled');
+        UpdateLytkoBtn.style.background = '#1F3C62';
+    }
     ChooseUpdateFileBtn.onclick = function () {
         window.location.href = "//" + CurrentSocket.ip + "/manual_update";
     }
@@ -1354,21 +1393,37 @@ function InsertMqtt() {
     let MqttSwitch = document.getElementById('MqttSwitch');
     let SwitchMQTTBtn = document.getElementById('SwitchMQTTBtn');
     let SwitchMqttComlete = document.getElementById('SwitchMqttComlete');
-    if (CurrentSocket.config.homekit === '0' || CurrentSocket.config.homekit === undefined) {
+    if (CurrentSocket.config.homekit === '0' || CurrentSocket.config.homekit === undefined || CurrentSocket.type === 'esp32_panel_4inch') {
         MqttSwitch.style.display = 'none';
         SwitchMQTTBtn.style.display = 'none';
-        if (CurrentSocket.mqtt_topics != '{}' & CurrentSocket.mqtt_topics != null & CurrentSocket.config.mqtt_use != '0') {
+        if ((CurrentSocket.mqtt_topics != '{}' || CurrentSocket.mqtt_topics_1ch != '{}' || CurrentSocket.mqtt_topics_2ch != '{}') & CurrentSocket.mqtt_topics != null & CurrentSocket.config.mqtt_use != '0') {
             var UpdateSocketBlock = document.getElementById('UpdateSocketBlock');
             var StateMqttTopic = document.getElementById('StateMqttTopic');
             var TargetTempMqttTopic = document.getElementById('TargetTempMqttTopic');
             var SetUpMqttTopic = document.getElementById('SetUpMqttTopic');
             var SetDownMqttTopic = document.getElementById('SetDownMqttTopic');
             var HeatingMqttTopic = document.getElementById('HeatingMqttTopic');
-            StateMqttTopic.innerHTML = CurrentSocket.mqtt_topics.state + CopyIcon;
-            TargetTempMqttTopic.innerHTML = CurrentSocket.mqtt_topics.target_temp + CopyIcon;
-            SetUpMqttTopic.innerHTML = CurrentSocket.mqtt_topics.step_up + CopyIcon;
-            SetDownMqttTopic.innerHTML = CurrentSocket.mqtt_topics.step_down + CopyIcon;
-            HeatingMqttTopic.innerHTML = CurrentSocket.mqtt_topics.heating + CopyIcon;
+            if (CurrentSocket.type === 'esp8266_thermostat' || CurrentSocket.type === 'esp8266_air') {
+                StateMqttTopic.innerHTML = CurrentSocket.mqtt_topics.state + CopyIcon;
+                TargetTempMqttTopic.innerHTML = CurrentSocket.mqtt_topics.target_temp + CopyIcon;
+                SetUpMqttTopic.innerHTML = CurrentSocket.mqtt_topics.step_up + CopyIcon;
+                SetDownMqttTopic.innerHTML = CurrentSocket.mqtt_topics.step_down + CopyIcon;
+                HeatingMqttTopic.innerHTML = CurrentSocket.mqtt_topics.heating + CopyIcon;
+            } else {
+                if (CurrentSocket.active_channel) {
+                    StateMqttTopic.innerHTML = CurrentSocket.mqtt_topics_2ch.state + CopyIcon;
+                    TargetTempMqttTopic.innerHTML = CurrentSocket.mqtt_topics_2ch.target_temp + CopyIcon;
+                    SetUpMqttTopic.innerHTML = CurrentSocket.mqtt_topics_2ch.step_up + CopyIcon;
+                    SetDownMqttTopic.innerHTML = CurrentSocket.mqtt_topics_2ch.step_down + CopyIcon;
+                    HeatingMqttTopic.innerHTML = CurrentSocket.mqtt_topics_2ch.heating + CopyIcon;
+                } else {
+                    StateMqttTopic.innerHTML = CurrentSocket.mqtt_topics_1ch.state + CopyIcon;
+                    TargetTempMqttTopic.innerHTML = CurrentSocket.mqtt_topics_1ch.target_temp + CopyIcon;
+                    SetUpMqttTopic.innerHTML = CurrentSocket.mqtt_topics_1ch.step_up + CopyIcon;
+                    SetDownMqttTopic.innerHTML = CurrentSocket.mqtt_topics_1ch.step_down + CopyIcon;
+                    HeatingMqttTopic.innerHTML = CurrentSocket.mqtt_topics_1ch.heating + CopyIcon;
+                }
+            }
             GetMQTTData.style.display = 'flex';
             AdressMqtt.value = CurrentSocket.config.mqtt_server;
             PortMqtt.value = CurrentSocket.config.mqtt_port;
@@ -1529,7 +1584,7 @@ function PairHk() {
     let SwitchHomekitBtn = document.getElementById('SwitchHomekitBtn');
     let DispairHomekit = document.getElementById('DispairHomekit');
     let NotQrcode = document.getElementById('NotQrcode');
-    if (CurrentSocket.config.homekit === '1' || CurrentSocket.config.homekit === '2') {
+    if (CurrentSocket.config.homekit === '1' || CurrentSocket.config.homekit === '2' || CurrentSocket.type === 'esp32_panel_4inch') {
         if (CurrentSocket.config.pair_hk === '0') {
             if (CurrentSocket.qr_hk != undefined) {
                 Qrcode.innerHTML = '';
@@ -1601,72 +1656,20 @@ function PairHk() {
         SetLoader(5, function () { location.host = location.host; });
     }
 }
+let ZigBeeSensorIndexToDisconnect;
 function ZigBeeSet() {
-    let ZigBeeExemple = {
-        "id": "4294967293",
-        "ip": "192.168.x.x",
-        "type": "lytko_gateway",
-        zoneId: 0,
-        childrens: [
-            {
-                type: "mqtt",
-                sensors: [
-                    {
-                        data: "3",
-                        name: "0x021",
-                        unit: "<sensorUnit>"
-                    },
-                    {
-                        data: "4",
-                        name: "0x4566",
-                        unit: "<sensorUnit>"
-                    },
-                    {
-                        data: "5",
-                        name: "0x56282",
-                        unit: "<sensorUnit>"
-                    },
-                    {
-                        data: "6",
-                        name: "0x9654",
-                        unit: "<sensorUnit>"
-                    }
-                ]
-            }
-        ]
-    }
-    if (false) {
-        for (let i = 0; CurrentSocket.ssdp.length > i; i++) {
-            if (CurrentSocket.id === CurrentSocket.ssdp[i].id) {
-                if (CurrentSocket.ssdp[i].type != 'lytko_gateway') {
-                    for (let i = 0; ZigBeeExemple.childrens[0].sensors.length > i; i++) {
-                        let SelectingBlock = document.createElement('div');
-                        let ZigBeeSensor = document.createElement('div');
-                        let SelectedIcon = document.createElement('div');
-                        SelectingBlock.className = 'SelectingBlock';
-                        ZigBeeSensor.className = 'ZigBeeSensor';
-                        SelectedIcon.className = 'SelectedIcon';
-                        SelectedIcon.innerHTML = '<svg width="20" height="15" viewBox="0 0 20 15" fill="none"><path d = "M0 8.13808L6.84888 15L20 1.86194L18.1119 0L6.84888 11.2499L1.86191 6.26303L0 8.13808Z" fill = "#2C98F0" /></svg >';
-                        ZigBeeSensor.innerHTML = ZigBeeExemple.childrens[0].sensors[i].name;
-                        SelectingBlock.append(ZigBeeSensor);
-                        SelectingBlock.append(SelectedIcon);
-                        SelectingBlock.onclick = function () {
-                            SelectZigBeeSensor(this);
-                        }
-                        ZigBeeSensors.append(SelectingBlock);
-                    }
-                    let ZigBeeInfo = document.getElementsByClassName('ZigBeeInfo')[0];
-                    ZigBeeInfo.style.display = 'none';
-                    DisconnectBtnZigBee.onclick = function () {
-                        CurrentSocket.Socket.send(JSON.stringify(
-                            {
-                                "clear_zigbee": index // index - порядковый номер сенсора, начиная с нуля
-                            }
-                        ));
-                    }
-                }
+    let ZigBeeInfo = document.getElementsByClassName('ZigBeeInfo')[0];
+    if (CurrentSocket.zigbee != '{}') {
+        ZigBeeInfo.style.display = 'none';
+        ZigBeeSensors.style.display = 'block';
+        for (let i = 0; 4 > i; i++) {
+            if (CurrentSocket.zigbee[i] != null) {
+                CreateZigBeeBlock(CurrentSocket.zigbee[i], i);
             }
         }
+    } else {
+        ZigBeeInfo.style.display = 'block';
+        ZigBeeSensors.style.display = 'none';
     }
     PairingBtnZigBee.onclick = function () {
         CurrentSocket.Socket.send(JSON.stringify(
@@ -1675,6 +1678,32 @@ function ZigBeeSet() {
             }
         ));
         SetLoader(30, function () { location.host = location.host; });
+    }
+    DisconnectBtnZigBee.onclick = function () {
+        CurrentSocket.Socket.send(JSON.stringify(
+            {
+                "clear_zigbee": ZigBeeSensorIndexToDisconnect
+            }
+        ));
+        SetLoader(30, function () { location.host = location.host; });
+    }
+}
+function CreateZigBeeBlock(sensor, number) {
+    let SelectBlock = document.createElement('div');
+    let NameSensor = document.createElement('div');
+    let SelectedIcon = document.createElement('div');
+    SelectBlock.className = 'SelectingBlock ZigBeeSensorBlock';
+    SelectBlock.id = sensor.ShotAddr;
+    NameSensor.className = 'NameSensor';
+    NameSensor.innerHTML = sensor.ShotAddr;
+    NameSensor.id = number;
+    SelectedIcon.className = 'SelectedIcon';
+    SelectedIcon.innerHTML = '<svg width="20" height="15" viewBox="0 0 20 15" fill="none"><path d = "M0 8.13808L6.84888 15L20 1.86194L18.1119 0L6.84888 11.2499L1.86191 6.26303L0 8.13808Z" fill = "#2C98F0" /></svg >';
+    SelectBlock.append(NameSensor);
+    SelectBlock.append(SelectedIcon);
+    ZigBeeSensors.append(SelectBlock);
+    SelectBlock.onclick = function () {
+        SelectZigBeeSensor(this);
     }
 }
 function SetLoader(time, func) {
@@ -1704,9 +1733,15 @@ function SelectZigBeeSensor(item) {
     if (checkedSelectedIcon === 'none' || checkedSelectedIcon === '') {
         ZigBeeSensors.querySelectorAll('.SelectedIcon').forEach(item => item.style.display = 'none');
         item.children[1].style.display = 'block';
+        ZigBeeSensorIndexToDisconnect = item.querySelector('.NameSensor').id;
+        DisconnectBtnZigBee.style.display = 'block';
+        PairingBtnZigBee.style.display = 'none';
     }
     else {
         item.children[1].style.display = 'none';
+        ZigBeeSensorIndexToDisconnect = null
+        DisconnectBtnZigBee.style.display = 'none';
+        PairingBtnZigBee.style.display = 'block';
     }
 }
 let HeatingIcon = '<svg width="16" height="20" viewBox="0 0 16 20" fill="none"><path d = "M14.86 10.2339C13.4205 6.38701 8.29518 6.17958 9.53296 0.588392C9.62465 0.173531 9.19372 -0.147043 8.8453 0.069816C5.51703 2.08755 3.12398 6.13244 5.13194 11.4313C5.29698 11.8651 4.80187 12.2705 4.44429 11.9876C2.78474 10.6959 2.61053 8.83846 2.75723 7.50902C2.81224 7.01873 2.18877 6.78302 1.92287 7.18845C1.29939 8.16903 0.666748 9.75304 0.666748 12.1385C1.01516 17.4185 5.352 19.0403 6.91069 19.2477C9.1387 19.54 11.5501 19.1157 13.283 17.4845C15.1901 15.6648 15.8869 12.7608 14.86 10.2339ZM6.35139 14.9765C7.6717 14.6465 8.35019 13.6659 8.53356 12.7985C8.83613 11.4502 7.65336 10.1302 8.45104 7.99931C8.75361 9.76247 11.4492 10.8656 11.4492 12.7891C11.5226 15.1745 9.01034 17.2205 6.35139 14.9765Z" fill = "white" /></svg >';
@@ -1965,13 +2000,11 @@ function ShowWifiList(WifiList) {
                 configTermostat.config.wifi_name = this.querySelectorAll('.WifiName')[0].innerHTML;
                 configConditioner.config.wifi_name = this.querySelectorAll('.WifiName')[0].innerHTML;
                 configPanel.config.wifi_name = this.querySelectorAll('.WifiName')[0].innerHTML;
-                console.log(configTermostat.config.wifi_name);
             }
             else {
                 SwitchElem(OneStageSettingDissapearElem, ThreeStageSettingDissapearElem);
                 WifiSelected = this;
                 config.config.wifi_name = SelectedWifiName;
-                //console.log(configTermostat.config.wifi_name);
             }
         }
     }
@@ -2009,8 +2042,14 @@ function NavigationDevice() {
         if (CurrentSocket.type === 'esp8266_thermostat' || CurrentSocket.type === 'esp32_panel_4inch') {
             SwitchElem(MainDisplayTermostat, DeviceSettings);
             DeviceSettings.querySelector('#ConditionerSetting').style.display = 'none';
-            DeviceSettings.querySelector('#ZigBeeSetting').style.display = 'none';
-            DeviceSettings.querySelector('#InnerSensorSetting').style.display = 'flex';
+            if (CurrentSocket.type === 'esp32_panel_4inch') {
+                DeviceSettings.querySelector('#InnerSensorSetting').style.display = 'none';
+                DeviceSettings.querySelector('#ZigBeeSetting').style.display = 'flex';
+            }
+            else {
+                DeviceSettings.querySelector('#ZigBeeSetting').style.display = 'none';
+                DeviceSettings.querySelector('#InnerSensorSetting').style.display = 'flex';
+            }
             DeviceSettings.querySelector('#GisteresisSetting').style.display = 'flex';
             DeviceSettings.querySelector('#TypeSensorSetting').style.display = 'flex';
         }
@@ -2111,14 +2150,18 @@ function AliceSet() {
                     }
                 ));
             }
-
         }
     }
     if (ArraySocket[0].config != undefined) {
         let AliceOnlyMqtt = document.getElementById('AliceOnlyMqtt');
         if (ArraySocket[0].config.homekit === '0') {
-            AliceOnlyMqtt.style.display = 'block';
-            AliceLink.onclick = null;
+
+            if (ArraySocket[0].type === 'esp32_panel_4inch') {
+                AliceOnlyMqtt.style.display = 'none';
+            } else {
+                AliceOnlyMqtt.style.display = 'block';
+                AliceLink.onclick = null;
+            }
         } else {
             AliceOnlyMqtt.style.display = 'none';
         }
