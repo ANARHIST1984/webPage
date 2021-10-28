@@ -810,7 +810,7 @@ function WebSocketOpen(SocketItemDevice) {
                         ArraySocket[i].id_for_use_ch2 = MessageJson.ssdp[i].id + 'type_2ch';
                         ArraySocket[i].ip = MessageJson.ssdp[i].ip;
                         ArraySocket[i].type_1ch = MessageJson.ssdp[i].type_1ch != undefined ? MessageJson.ssdp[i].type_1ch : null;
-                        ArraySocket[i].type_2ch = 'lightUpdateLytkoBtn';//MessageJson.ssdp[i].type_2ch != undefined ? MessageJson.ssdp[i].type_2ch : null;
+                        ArraySocket[i].type_2ch = MessageJson.ssdp[i].type_2ch != undefined ? MessageJson.ssdp[i].type_2ch : null;
                     } else if (ArraySocket.find(item => item.id === MessageJson.ssdp[i].id) === undefined) {
                         ArraySocket.push(ArraySocketItem = {
                             Socket: new WebSocket("ws://" + MessageJson.ssdp[i].ip + "/ws"),
@@ -1376,9 +1376,9 @@ function InsertMqtt() {
             var updateString;
             if (CurrentSocket.type === 'esp32_panel_4inch') {
                 if (CurrentSocket.active_channel === 0) {
-                    updateString = '{<br />&nbsp;&nbsp;"update_ch1": {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "temp": ' + CurrentSocket.update_1ch.temp + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "target_temp": ' + CurrentSocket.update_1ch.target_temp + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "relay": ' + CurrentSocket.update_1ch.relay + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"heating": ' + CurrentSocket.update_1ch.heating + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "unit": ' + CurrentSocket.update_1ch.unit + ' <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} <br />}';
+                    updateString = '{<br />&nbsp;&nbsp;"update_1ch": {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "temp": ' + CurrentSocket.update_1ch.temp + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "target_temp": ' + CurrentSocket.update_1ch.target_temp + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "relay": ' + CurrentSocket.update_1ch.relay + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"heating": ' + CurrentSocket.update_1ch.heating + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "unit": ' + CurrentSocket.update_1ch.unit + ' <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} <br />}';
                 } else {
-                    updateString = '{<br />&nbsp;&nbsp;"update_ch1": {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "temp": ' + CurrentSocket.update_2ch.temp + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "target_temp": ' + CurrentSocket.update_2ch.target_temp + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "relay": ' + CurrentSocket.update_2ch.relay + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"heating": ' + CurrentSocket.update_2ch.heating + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "unit": ' + CurrentSocket.update_2ch.unit + ' <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} <br />}';
+                    updateString = '{<br />&nbsp;&nbsp;"update_2ch": {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "temp": ' + CurrentSocket.update_2ch.temp + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "target_temp": ' + CurrentSocket.update_2ch.target_temp + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "relay": ' + CurrentSocket.update_2ch.relay + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"heating": ' + CurrentSocket.update_2ch.heating + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "unit": ' + CurrentSocket.update_2ch.unit + ' <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} <br />}';
                 }
             } else {
                 updateString = '{<br />&nbsp;&nbsp;"update": {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "temp": ' + CurrentSocket.update.temp + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "target_temp": ' + CurrentSocket.update.target_temp + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "relay": ' + CurrentSocket.update.relay + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"heating": ' + CurrentSocket.update.heating + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "name": ' + CurrentSocket.update.name + ', <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "unit": ' + CurrentSocket.update.unit + ' <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} <br />}';
