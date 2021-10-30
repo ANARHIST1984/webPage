@@ -891,6 +891,10 @@ input[type=range]::-webkit-slider-thumb {
     box-sizing: border-box;
 }
 
+    .ZigBeeInfo p {
+        text-align: center;
+    }
+
 .HomekitInfo {
     text-align: center;
 }
@@ -1339,3 +1343,11 @@ input[type=range]::-webkit-slider-thumb {
         transform: rotate(360deg);
     }
 }
+
+/*@font-face {
+    font-family: 'NotoSans-Regular';
+}*/
+/*@font-face {
+    font-family: 'NotoSans-Regular';
+    src: url('NotoSans.woff2') format('woff2');
+}*/

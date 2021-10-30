@@ -748,9 +748,6 @@ function ChangeTempDynamic() {
 window.onload = function () {
     ArraySocket.push(ArraySocketItem = {
         Socket: new WebSocket("ws://" + location.host + "/ws"),
-        //id: "15299390",
-        //type: "esp8266_thermostat",
-        //type: "esp8266_air",
         config: null,
         config_1ch: null,
         config_2ch: null,
@@ -1042,7 +1039,7 @@ function WebSocketOpen(SocketItemDevice) {
         if ('zigbee_data' in MessageJson) {
             if (MessageJson.zigbee_data != undefined & MessageJson.zigbee_data != '{}' & configActive === 0) {
                 SensorsLine.style.display = 'flex';
-                for (let i = 0; 4 > i; i++) {
+                for (let i = 0; 5 > i; i++) {
                     if (MessageJson.zigbee_data[i] != undefined) {
                         let CurrentSensorArray = new Array;
                         for (let index = 0; MessageJson.zigbee_data[i].type.length > index; index++) {
@@ -1067,13 +1064,17 @@ function WebSocketOpen(SocketItemDevice) {
         }
     }
 }
+var SensorIconArray = {
+    'sensor_temp': '<svg width="8" height="16" viewBox="0 0 8 16" fill="none"><path fill- rule="evenodd" clip - rule="evenodd" d = "M6.4 2.4V8.8C7.368 9.528 8 10.696 8 12C8 14.208 6.208 16 4 16C1.792 16 0 14.208 0 12C0 10.696 0.632002 9.528 1.6 8.8V2.4C1.6 1.072 2.672 0 4 0C5.328 0 6.4 1.072 6.4 2.4ZM4 1.6C3.56 1.6 3.2 1.96 3.2 2.4V9.82649C2.33468 10.139 1.71429 10.9868 1.71429 11.9837C1.71429 13.246 2.70921 14.2694 3.93651 14.2694C5.16381 14.2694 6.15873 13.246 6.15873 11.9837C6.15873 11.0363 5.59838 10.2236 4.8 9.87693V2.4C4.8 1.96 4.44 1.6 4 1.6Z" fill = "white" /></svg>',
+    'sensor_hum': '<svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M4 2.29256C4.27207 2.72351 4.57365 3.22459 4.87456 3.76937C5.86639 5.56497 6.71429 7.59677 6.71429 9.13396C6.71429 10.4178 6.38173 11.3173 5.9272 11.8702C5.49538 12.3955 4.87048 12.7143 4 12.7143C3.12952 12.7143 2.50462 12.3955 2.0728 11.8702C1.61827 11.3173 1.28571 10.4178 1.28571 9.13396C1.28571 7.59677 2.13361 5.56497 3.12544 3.76937C3.42636 3.22459 3.72792 2.72351 4 2.29256Z" stroke="white" stroke- width="2.57143" /></svg >'
+};
 function CreateSensorBlockOrFalse(Sensor) {
     let ExistSensorBlockCheck = document.getElementById(Sensor.id);
     if (ExistSensorBlockCheck === null) {
         let SensorBlock = document.createElement('div');
         let SensorIcon = document.createElement('div');
         let SensorValue = document.createElement('div');
-        let Icon = '<svg width="8" height="16" viewBox="0 0 8 16" fill="none"><path fill-rule="evenodd" clip - rule="evenodd" d = "M6.4 2.4V8.8C7.368 9.528 8 10.696 8 12C8 14.208 6.208 16 4 16C1.792 16 0 14.208 0 12C0 10.696 0.632002 9.528 1.6 8.8V2.4C1.6 1.072 2.672 0 4 0C5.328 0 6.4 1.072 6.4 2.4ZM4 1.6C3.56 1.6 3.2 1.96 3.2 2.4V9.82649C2.33468 10.139 1.71429 10.9868 1.71429 11.9837C1.71429 13.246 2.70921 14.2694 3.93651 14.2694C5.16381 14.2694 6.15873 13.246 6.15873 11.9837C6.15873 11.0363 5.59838 10.2236 4.8 9.87693V2.4C4.8 1.96 4.44 1.6 4 1.6Z" fill = "white" /></svg >';
+        let Icon = SensorIconArray[Sensor.type];
         let TypeTemp = Sensor.unit === 'Celsius' ? '°' : '%';
         SensorBlock.className = 'SensorsBlock';
         SensorBlock.id = Sensor.id;
@@ -1678,7 +1679,7 @@ function ZigBeeSet() {
     if (CurrentSocket.zigbee != '{}') {
         ZigBeeInfo.style.display = 'none';
         ZigBeeSensors.style.display = 'block';
-        for (let i = 0; 4 > i; i++) {
+        for (let i = 0; 5 > i; i++) {
             if (CurrentSocket.zigbee[i] != null) {
                 CreateZigBeeBlock(CurrentSocket.zigbee[i], i);
             }
@@ -1695,6 +1696,17 @@ function ZigBeeSet() {
         ));
         SetLoader(30, function () { location.host = location.host; });
     }
+    if (CurrentSocket.zigbee != null & CurrentSocket.zigbee != undefined & CurrentSocket.zigbee != '{}') {
+        if (CurrentSocket.zigbee[4] === null || CurrentSocket.zigbee[4] === undefined) {
+            PairingBtnZigBee.removeAttribute('disabled');
+            PairingBtnZigBee.style.background = '#035CD0';
+        }
+        else {
+            PairingBtnZigBee.setAttribute('disabled', 'disabled');
+            PairingBtnZigBee.style.background = '#1F3C62';
+        }
+    }
+
     DisconnectBtnZigBee.onclick = function () {
         CurrentSocket.Socket.send(JSON.stringify(
             {
@@ -1704,6 +1716,7 @@ function ZigBeeSet() {
         SetLoader(30, function () { location.host = location.host; });
     }
 }
+
 function CreateZigBeeBlock(sensor, number) {
     let SelectBlock = document.createElement('div');
     let NameSensor = document.createElement('div');
