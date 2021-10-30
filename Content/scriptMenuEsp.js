@@ -106,6 +106,15 @@ var WifiDefCollection = {
     7: 'Открытая сеть',
     8: 'WPA / WPA2 / PSK'
 }
+var WifiDefCollectionPanel = {
+    0: 'Открытая сеть',
+    1: 'WEP',
+    2: 'WPA / PSK',
+    3: 'WPA2 / PSK',
+    4: 'WPA / WPA2 / PSK',
+    5: 'WPA2 / ENTERPRISE',
+    6: 'MAX'
+}
 var SensorIdCollection = {
     'Digital': 0,
     '3.3_кОм': 1,
@@ -738,11 +747,7 @@ function ChangeTempDynamic() {
 }
 window.onload = function () {
     ArraySocket.push(ArraySocketItem = {
-        //Socket: new WebSocket("ws://192.168.1.42/ws"),
         Socket: new WebSocket("ws://" + location.host + "/ws"),
-        //id: "15299390",
-        //type: "esp8266_thermostat",
-        //type: "esp8266_air",
         config: null,
         config_1ch: null,
         config_2ch: null,
@@ -773,7 +778,9 @@ let swuthheat1 = true;
 let swuthheat = false;
 let DeviceConfigArray = new Array();
 function WebSocketOpen(SocketItemDevice) {
+    console.log("Opening WebSocket..");
     SocketItemDevice.Socket.onopen = function (evt) {
+        console.log("WebSocket is open.");
     };
     SocketItemDevice.Socket.onerror = function (error) {
         console.log("Error " + error.message)
@@ -1274,7 +1281,7 @@ function UpdateSet() {
         InputName = document.getElementById('NameInput');
         InputName.value = CurrentSocket.config.name;
     }
-    if (CurrentSocket.type != 'esp32_panel_4inch' && CurrentSocket.config.link === '') {
+    if (CurrentSocket.config.link != '') {
         UpdateMarker.style.display = 'flex';
         UpdateLytkoBtn.removeAttribute('disabled');
         UpdateLytkoBtn.style.background = '#035CD0';
@@ -1504,6 +1511,9 @@ function InsertMqtt() {
     else {
         document.getElementsByClassName('MqttConnect')[0].style.display = 'none';
     }
+}
+function fff() {
+    ArraySocket[0].Socket.send(JSON.stringify("reset"));
 }
 function TabloTempInitialization() {
     MaxTablo = document.getElementById('TabloTempMax').querySelector('.ChangingTempTablo');
@@ -1941,7 +1951,10 @@ function ShowWifiList(WifiList) {
         InfoWifiBlock.className = 'InfoWifiBlock';
         WifiBlock.className = 'WifiPasswordPanel WifiBlock SelectingBlock';
         WifiName.innerHTML = WifiList[k].ssid;
-        GuardTypeWifi.innerHTML = WifiDefCollection[WifiList[k].encryption];
+        if (ArraySocket[0].type === 'esp32_panel_4inch')
+            GuardTypeWifi.innerHTML = WifiDefCollectionPanel[WifiList[k].encryption];
+        else
+            GuardTypeWifi.innerHTML = WifiDefCollection[WifiList[k].encryption];
         if (WifiList[k].signal != undefined)
             WifiIcon.innerHTML = WifiIconArray[DetermineWifiSignal(WifiList[k].signal)];
         InfoWifiBlock.append(WifiName);
@@ -2018,7 +2031,6 @@ function DetermineWifiSignal(WifiSignal) {
             let determineResult = Math.floor(WifiSignal / 25);
             result = determineResult === 4 ? 3 : determineResult;
         }
-
     }
     else
         result = 4
