@@ -748,6 +748,9 @@ function ChangeTempDynamic() {
 window.onload = function () {
     ArraySocket.push(ArraySocketItem = {
         Socket: new WebSocket("ws://" + location.host + "/ws"),
+        //id: "15299390",
+        //type: "esp8266_thermostat",
+        //type: "esp8266_air",
         config: null,
         config_1ch: null,
         config_2ch: null,
@@ -778,9 +781,7 @@ let swuthheat1 = true;
 let swuthheat = false;
 let DeviceConfigArray = new Array();
 function WebSocketOpen(SocketItemDevice) {
-    console.log("Opening WebSocket..");
     SocketItemDevice.Socket.onopen = function (evt) {
-        console.log("WebSocket is open.");
     };
     SocketItemDevice.Socket.onerror = function (error) {
         console.log("Error " + error.message)
@@ -913,14 +914,14 @@ function WebSocketOpen(SocketItemDevice) {
         if ('mqtt_topics_1ch' in MessageJson) {
             for (let i = 0; ArraySocket.length > i; i++) {
                 if (ArraySocket[i].id === SocketItemDevice.id) {
-                    ArraySocket[i].mqtt_topics = MessageJson.mqtt_topics;
+                    ArraySocket[i].mqtt_topics_1ch = MessageJson.mqtt_topics_1ch;
                 }
             }
         }
         if ('mqtt_topics_2ch' in MessageJson) {
             for (let i = 0; ArraySocket.length > i; i++) {
                 if (ArraySocket[i].id === SocketItemDevice.id) {
-                    ArraySocket[i].mqtt_topics = MessageJson.mqtt_topics;
+                    ArraySocket[i].mqtt_topics_2ch = MessageJson.mqtt_topics_2ch;
                 }
             }
         }
@@ -1405,7 +1406,7 @@ function InsertMqtt() {
     if (CurrentSocket.config.homekit === '0' || CurrentSocket.config.homekit === undefined || CurrentSocket.type === 'esp32_panel_4inch') {
         MqttSwitch.style.display = 'none';
         SwitchMQTTBtn.style.display = 'none';
-        if ((CurrentSocket.mqtt_topics != '{}' || CurrentSocket.mqtt_topics_1ch != '{}' || CurrentSocket.mqtt_topics_2ch != '{}') & CurrentSocket.mqtt_topics != null & CurrentSocket.config.mqtt_use != '0') {
+        if ((CurrentSocket.mqtt_topics != '{}' || CurrentSocket.mqtt_topics_1ch != '{}' || CurrentSocket.mqtt_topics_2ch != '{}') & CurrentSocket.config.mqtt_use != '0') {
             var UpdateSocketBlock = document.getElementById('UpdateSocketBlock');
             var StateMqttTopic = document.getElementById('StateMqttTopic');
             var TargetTempMqttTopic = document.getElementById('TargetTempMqttTopic');
@@ -1450,6 +1451,9 @@ function InsertMqtt() {
             UpdateSocketBlock.innerHTML = updateString;
         }
         else {
+            AdressMqtt.value = '';
+            PortMqtt.value = '';
+            LoginMqtt.value = '';
             GetMQTTData.style.display = 'none';
         }
         if (CurrentSocket.config.mqtt_use === '1') {
