@@ -825,8 +825,10 @@ function WebSocketOpen(SocketItemDevice) {
             }
         }
         if (MessageJson.wifi_networks != null) {
-            ArraySocket[0].wifi_networks = MessageJson.wifi_networks;
-            ShowWifiList(ArraySocket[0].wifi_networks);
+            if (ArraySocket[0].Socket === this) {
+                ArraySocket[0].wifi_networks = MessageJson.wifi_networks;
+                ShowWifiList(ArraySocket[0].wifi_networks);
+            }
         }
         if ('config' in MessageJson) {
             for (let i = 0; ArraySocket.length > i; i++) {
