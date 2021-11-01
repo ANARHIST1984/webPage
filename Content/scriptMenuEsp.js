@@ -853,6 +853,8 @@ function WebSocketOpen(SocketItemDevice) {
                             FirstSettingsTools();
                         }
                         if (ArraySocket[0].type === 'esp32_panel_4inch') {
+                            ArraySocket[0].type_1ch = 'thermostat';
+                            ArraySocket[0].type_2ch = 'thermostat';
                             configPanelChannel.ConfCh1.config_1ch.type = ArraySocket[0].type_1ch;
                             configPanelChannel.ConfCh2.config_2ch.type = ArraySocket[0].type_2ch;
                         }
