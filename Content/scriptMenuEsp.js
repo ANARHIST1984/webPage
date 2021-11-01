@@ -966,8 +966,11 @@ function WebSocketOpen(SocketItemDevice) {
                     if (!configActive) {
                         SocketItemDevice.channel_number = 0;
                         let DeviceBlockCheck = document.getElementById(ArraySocket[i].id_for_use_ch1);
-                        if (!DeviceBlockCheck)
-                            CreateDeviceBlock(SocketItemDevice, ArraySocket[i].type);
+                        if (!DeviceBlockCheck) {
+                            if (ArraySocket[i].type_1ch != 'none') {
+                                CreateDeviceBlock(SocketItemDevice, ArraySocket[i].type_1ch);
+                            }
+                        }
                     }
 
                 }
@@ -981,8 +984,12 @@ function WebSocketOpen(SocketItemDevice) {
                     if (!configActive) {
                         SocketItemDevice.channel_number = 1;
                         let DeviceBlockCheck = document.getElementById(ArraySocket[i].id_for_use_ch2);
-                        if (!DeviceBlockCheck)
-                            CreateDeviceBlock(SocketItemDevice, ArraySocket[i].type);
+                        if (!DeviceBlockCheck) {
+                            if (ArraySocket[i].type_2ch != 'none') {
+                                CreateDeviceBlock(SocketItemDevice, ArraySocket[i].type_2ch);
+                            }
+                        }
+                            
                     }
                 }
             }
