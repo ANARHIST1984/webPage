@@ -228,11 +228,11 @@ function FirstSettingsTools() {
         }
     } else if (CurrentSocket.type === 'esp32_panel_4inch') {
         SelectTypePanelChannel(SelectingTypeChannel[0]);
-        //SelectingTypeChannel.forEach(item => {
-        //    //item.onclick = function () {
-        //    //    SelectTypePanelChannel(this);
-        //    //}
-        //});
+        SelectingTypeChannel.forEach(item => {
+            item.onclick = function () {
+                SelectTypePanelChannel(this);
+            }
+        });
         let ResistanceKey = getKeyByValue(SensorIdCollection, 4);
         let ResistanceItem = SearchByHtmlCollectionByIdOrNull(TypeResistanceBlocks, ResistanceKey);
         if (ResistanceItem != null) {
@@ -303,7 +303,7 @@ function SelectTypePanelChannel(item) {
             NextPanelSettingChannel.style.display = 'block';
         }
         TypeChannelSelect = 'thermostat';
-    } else {
+    } else if (item.id === 'light') {
         if (!FirstChannelSelectChecker) {
             if (CurrentSocket.config_2ch.type === 'none') {
                 SelectChannelBtnComplete.style.display = 'block';
@@ -321,6 +321,15 @@ function SelectTypePanelChannel(item) {
             }
         }
         TypeChannelSelect = 'light';
+    } else {
+        if (!FirstChannelSelectChecker) {
+            configPanelChannel.ConfCh1.config_1ch.type = 'none';
+        } else {
+            configPanelChannel.ConfCh2.config_2ch.type = 'none';
+            SelectChannelBtnComplete.style.display = 'block';
+            NextPanelSettingChannel.style.display = 'none';
+        }
+        TypeChannelSelect = 'none';
     }
 
 }
@@ -336,6 +345,7 @@ function PanelSettingNav() {
         if (ClassName === 'CompletePanelSetting') {
             let TypeLightDeviceCh1 = { "config_1ch": { "type": "" } };
             let TypeLightDeviceCh2 = { "config_2ch": { "type": "" } };
+            let TypeNoneDeviceCh2 = { "config_2ch": { "type": "none" } };
             if (configPanelChannel.ConfCh1.config_1ch.type === 'light') {
                 TypeLightDeviceCh1.config_1ch.type = configPanelChannel.ConfCh1.config_1ch.type;
                 CurrentSocket.Socket.send(JSON.stringify(TypeLightDeviceCh1));
@@ -345,8 +355,10 @@ function PanelSettingNav() {
             if (configPanelChannel.ConfCh2.config_2ch.type === 'light') {
                 TypeLightDeviceCh2.config_2ch.type = configPanelChannel.ConfCh2.config_2ch.type;
                 CurrentSocket.Socket.send(JSON.stringify(TypeLightDeviceCh2));
-            } else {
+            } else if (configPanelChannel.ConfCh2.config_2ch.type === 'thermostat') {
                 CurrentSocket.Socket.send(JSON.stringify(configPanelChannel.ConfCh2));
+            } else if (configPanelChannel.ConfCh2.config_2ch.type === 'none') {
+                CurrentSocket.Socket.send(JSON.stringify(TypeNoneDeviceCh2));
             }
             CurrentSocket.Socket.send(JSON.stringify(configPanel));
         }
@@ -363,7 +375,6 @@ function PanelSettingNav() {
         }
         if (this.id === 'BackFromChTypeResist') {
             if (FirstChannelSelectChecker) {
-
                 DetermineChannle();
             } else if (TermostatChannelChecker) {
                 DetermineChannle();
@@ -388,7 +399,6 @@ function PanelSettingNav() {
             if (!FirstChannelSelectChecker & CurrentSocket.type_2ch != 'none') {
                 NextGisterSetting.style.display = 'block';
                 GisterCompleteSettings.style.display = 'none';
-
             } else {
                 NextGisterSetting.style.display = 'none';
                 GisterCompleteSettings.style.display = 'block';
@@ -397,6 +407,7 @@ function PanelSettingNav() {
         if (this.id === 'NextGisterSetting') {
             FirstChannelSelectChecker++;
             DetermineChannle();
+            SelectTypePanelChannel(SelectingTypeChannel[0]);
         }
         if (ClassName === 'TypeResystancePanel') {
             let ResistanceKey;
@@ -439,17 +450,20 @@ function DetermineChannle() {
     let title = TitleChannelPanelSetting.querySelector('.SettingsInfoTitle').querySelector('span');
     let CompletePanelSettingChannel = document.getElementById('CompletePanelSettingChannel');
     let NextPanelSettingChannel = document.getElementById('NextPanelSettingChannel');
+    let NoneType = document.getElementById('NoneType');
     if (FirstChannelSelectChecker) {
         title.innerHTML = '2 Канал';
+        NoneType.style.display = 'flex';
         return true;
     } else {
+        NoneType.style.display = 'none';
         if (CurrentSocket.config_1ch != null) {
             if (CurrentSocket.config_2ch.type != 'none') {
-                CompletePanelSettingChannel.style.display = 'none';
-                NextPanelSettingChannel.style.display = 'block';
-            } else {
                 CompletePanelSettingChannel.style.display = 'block';
                 NextPanelSettingChannel.style.display = 'none';
+            } else {
+                CompletePanelSettingChannel.style.display = 'none';
+                NextPanelSettingChannel.style.display = 'block';
             }
         }
         title.innerHTML = '1 Канал';
@@ -800,7 +814,6 @@ function WebSocketOpen(SocketItemDevice) {
                     if (ArraySocket[i] && ArraySocket[i].Socket === this) {
                         ArraySocket[i].ssdp = MessageJson.ssdp;
                         ArraySocket[i].type = MessageJson.ssdp[i].type;
-                        //ArraySocket[i].type = 'esp32_panel_4inch';
                         ArraySocket[i].id = MessageJson.ssdp[i].id;
                         ArraySocket[i].id_for_use_ch1 = MessageJson.ssdp[i].id + 'type_1ch';
                         ArraySocket[i].id_for_use_ch2 = MessageJson.ssdp[i].id + 'type_2ch';
@@ -955,7 +968,7 @@ function WebSocketOpen(SocketItemDevice) {
                 }
             }
         }
-        if ('config_2ch' in MessageJson /*'config' in MessageJson*/) {
+        if ('config_2ch' in MessageJson) {
             for (let i = 0; ArraySocket.length > i; i++) {
                 ArraySocket[i].config_2ch = MessageJson.config_2ch;
                 if (ArraySocket[i].id === SocketItemDevice.id && !PanelMenu) {
@@ -969,7 +982,7 @@ function WebSocketOpen(SocketItemDevice) {
                 }
             }
         }
-        if ('update_1ch' in MessageJson /*'update' in MessageJson*/) {
+        if ('update_1ch' in MessageJson) {
             for (let i = 0; ArraySocket.length > i; i++) {
                 if (ArraySocket[i].id === SocketItemDevice.id & !configActive && SocketItemDevice.type === 'esp32_panel_4inch') {
                     ArraySocket[i].update_1ch = MessageJson.update_1ch;
@@ -986,7 +999,7 @@ function WebSocketOpen(SocketItemDevice) {
                 }
             }
         }
-        if ('update_2ch' in MessageJson/* 'update' in MessageJson*/) {
+        if ('update_2ch' in MessageJson) {
             for (let i = 0; ArraySocket.length > i; i++) {
 
                 if (ArraySocket[i].id === SocketItemDevice.id & !configActive && SocketItemDevice.type === 'esp32_panel_4inch') {
@@ -2109,7 +2122,6 @@ function NavSettings() {
     let ComposedStyleWifi = getComputedStyle(PasswordBlockWifimenu);
     if (this.parentElement.parentElement.id === 'MQTTPage' & ComposedStyleMqtt.display != 'none') {
         SwitchElem(MQTTReceivedInfo, MqttInputData);
-        //ConnectMQTTBtn.style.display = 'flex';
         DisconnectMQTTBtn.style.display = 'flex';
     }
     else if (this.parentElement.parentElement.id === 'WifiPage' & ComposedStyleWifi.display != 'none') {
