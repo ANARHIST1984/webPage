@@ -822,7 +822,7 @@ function WebSocketOpen(SocketItemDevice) {
                         ArraySocket[i].id_for_use_ch2 = MessageJson.ssdp[i].id + 'type_2ch';
                         ArraySocket[i].ip = MessageJson.ssdp[i].ip;
                         ArraySocket[i].type_1ch = MessageJson.ssdp[i].type_1ch != undefined ? MessageJson.ssdp[i].type_1ch : null;
-                        ArraySocket[i].type_2ch = MessageJson.ssdp[i].type_2ch != undefined ? MessageJson.ssdp[i].type_2ch : null;
+                        ArraySocket[i].type_2ch = 'none';//MessageJson.ssdp[i].type_2ch != undefined ? MessageJson.ssdp[i].type_2ch : null;
                     } else if (ArraySocket.find(item => item.id === MessageJson.ssdp[i].id) === undefined) {
                         ArraySocket.push(ArraySocketItem = {
                             Socket: new WebSocket("ws://" + MessageJson.ssdp[i].ip + "/ws"),
@@ -968,7 +968,7 @@ function WebSocketOpen(SocketItemDevice) {
                         let DeviceBlockCheck = document.getElementById(ArraySocket[i].id_for_use_ch1);
                         if (!DeviceBlockCheck) {
                             if (ArraySocket[i].type_1ch != 'none') {
-                                CreateDeviceBlock(SocketItemDevice, ArraySocket[i].type_1ch);
+                                CreateDeviceBlock(SocketItemDevice, ArraySocket[i].type);
                             }
                         }
                     }
@@ -986,10 +986,9 @@ function WebSocketOpen(SocketItemDevice) {
                         let DeviceBlockCheck = document.getElementById(ArraySocket[i].id_for_use_ch2);
                         if (!DeviceBlockCheck) {
                             if (ArraySocket[i].type_2ch != 'none') {
-                                CreateDeviceBlock(SocketItemDevice, ArraySocket[i].type_2ch);
+                                CreateDeviceBlock(SocketItemDevice, ArraySocket[i].type);
                             }
                         }
-                            
                     }
                 }
             }
@@ -1013,20 +1012,20 @@ function WebSocketOpen(SocketItemDevice) {
         }
         if ('update_2ch' in MessageJson/* 'update' in MessageJson*/) {
             for (let i = 0; ArraySocket.length > i; i++) {
-
-                if (ArraySocket[i].id === SocketItemDevice.id & !configActive && SocketItemDevice.type === 'esp32_panel_4inch') {
-                    ArraySocket[i].update_2ch = MessageJson.update_2ch;
-                    ArraySocket[i].channel_number = 1;
-                    let MaindisplayHeating = document.getElementById(ArraySocket[i].id_for_use_ch2);
-                    if (MaindisplayHeating != null) {
-                        MaindisplayHeating.querySelector('.HeatingTermostatByID').style.background = ArraySocket[i].update_2ch.heating === 'heat' ? '#035CD0' : '#1F3C62';
+                if (SocketItemDevice.type_2ch != 'none')
+                    if (ArraySocket[i].id === SocketItemDevice.id & !configActive && SocketItemDevice.type === 'esp32_panel_4inch') {
+                        ArraySocket[i].update_2ch = MessageJson.update_2ch;
+                        ArraySocket[i].channel_number = 1;
+                        let MaindisplayHeating = document.getElementById(ArraySocket[i].id_for_use_ch2);
+                        if (MaindisplayHeating != null) {
+                            MaindisplayHeating.querySelector('.HeatingTermostatByID').style.background = ArraySocket[i].update_2ch.heating === 'heat' ? '#035CD0' : '#1F3C62';
+                        }
+                        SetMainDisplay(SocketItemDevice);
+                        if (CurrentSocket != null) {
+                            HeatingRegulate();
+                            ChangeTargetTemp();
+                        }
                     }
-                    SetMainDisplay(SocketItemDevice);
-                    if (CurrentSocket != null) {
-                        HeatingRegulate();
-                        ChangeTargetTemp();
-                    }
-                }
             }
         }
         if ('loading' in MessageJson) {
@@ -1082,6 +1081,7 @@ function WebSocketOpen(SocketItemDevice) {
                                 UpdateSensorValue(CurrentSensorArray[indexCurrentArray]);
                             }
                         }
+
                     }
                 }
             }
