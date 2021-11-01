@@ -48,7 +48,6 @@ let DropUpAliceInfo = document.getElementById('DropUpAliceInfo');
 let CloseAliceInfo = document.getElementById('CloseAliceInfo');
 let MainMenuWidgetArrowUp = document.querySelectorAll('.MainMenuWidgetArrowUp');
 let MainMenuWidgetArrowDown = document.querySelectorAll('.MainMenuWidgetArrowDown');
-//Conditioner Handlers
 let AutoTempHandler = document.querySelectorAll('.AutoTempHandler');
 let HeatingTempHandler = document.getElementById('HeatingTempHandler');
 let CoolTempHandler = document.getElementById('CoolTempHandler');
@@ -396,7 +395,7 @@ function PanelSettingNav() {
             }
         }
         if (ClassName === 'TypeResystancePanel' || ClassName === 'TermostatTempSettingPanel') {
-            if (!FirstChannelSelectChecker & CurrentSocket.type_2ch != 'none') {
+            if (!FirstChannelSelectChecker & ArraySocket[0].type_2ch != 'none') {
                 NextGisterSetting.style.display = 'block';
                 GisterCompleteSettings.style.display = 'none';
             } else {
@@ -457,15 +456,18 @@ function DetermineChannle() {
         return true;
     } else {
         NoneType.style.display = 'none';
-        if (CurrentSocket.config_1ch != null) {
-            if (CurrentSocket.config_2ch.type != 'none') {
-                CompletePanelSettingChannel.style.display = 'none';
-                NextPanelSettingChannel.style.display = 'block';
-            } else {
-                CompletePanelSettingChannel.style.display = 'block';
-                NextPanelSettingChannel.style.display = 'block';
-            }
-        }
+        //if (CurrentSocket.config_1ch != null) {
+        //    if (CurrentSocket.config_2ch.type != 'none') {
+        //        CompletePanelSettingChannel.style.display = 'none';
+        //        NextPanelSettingChannel.style.display = 'block';
+        //    } else {
+        //        CompletePanelSettingChannel.style.display = 'none';
+        //        NextPanelSettingChannel.style.display = 'block';
+        //    }
+
+        //}
+        CompletePanelSettingChannel.style.display = 'none';
+        NextPanelSettingChannel.style.display = 'block';
         title.innerHTML = '1 Канал';
         return false;
     }
@@ -941,6 +943,7 @@ function WebSocketOpen(SocketItemDevice) {
         if ('zigbee' in MessageJson) {
             for (let i = 0; ArraySocket.length > i; i++) {
                 if (ArraySocket[i].id === SocketItemDevice.id) {
+                    ArraySocket[i].zigbee = MessageJson.zigbee;
                 }
             }
         }
@@ -1072,7 +1075,6 @@ function WebSocketOpen(SocketItemDevice) {
                                 UpdateSensorValue(CurrentSensorArray[indexCurrentArray]);
                             }
                         }
-
                     }
                 }
             }
