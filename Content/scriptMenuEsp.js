@@ -822,7 +822,7 @@ function WebSocketOpen(SocketItemDevice) {
                         ArraySocket[i].id_for_use_ch2 = MessageJson.ssdp[i].id + 'type_2ch';
                         ArraySocket[i].ip = MessageJson.ssdp[i].ip;
                         ArraySocket[i].type_1ch = MessageJson.ssdp[i].type_1ch != undefined ? MessageJson.ssdp[i].type_1ch : null;
-                        ArraySocket[i].type_2ch = 'none';//MessageJson.ssdp[i].type_2ch != undefined ? MessageJson.ssdp[i].type_2ch : null;
+                        ArraySocket[i].type_2ch = MessageJson.ssdp[i].type_2ch != undefined ? MessageJson.ssdp[i].type_2ch : null;
                     } else if (ArraySocket.find(item => item.id === MessageJson.ssdp[i].id) === undefined) {
                         ArraySocket.push(ArraySocketItem = {
                             Socket: new WebSocket("ws://" + MessageJson.ssdp[i].ip + "/ws"),
