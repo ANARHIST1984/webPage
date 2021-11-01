@@ -459,10 +459,10 @@ function DetermineChannle() {
         NoneType.style.display = 'none';
         if (CurrentSocket.config_1ch != null) {
             if (CurrentSocket.config_2ch.type != 'none') {
-                CompletePanelSettingChannel.style.display = 'block';
-                NextPanelSettingChannel.style.display = 'none';
-            } else {
                 CompletePanelSettingChannel.style.display = 'none';
+                NextPanelSettingChannel.style.display = 'block';
+            } else {
+                CompletePanelSettingChannel.style.display = 'block';
                 NextPanelSettingChannel.style.display = 'block';
             }
         }
@@ -814,6 +814,7 @@ function WebSocketOpen(SocketItemDevice) {
                     if (ArraySocket[i] && ArraySocket[i].Socket === this) {
                         ArraySocket[i].ssdp = MessageJson.ssdp;
                         ArraySocket[i].type = MessageJson.ssdp[i].type;
+                        //ArraySocket[i].type = 'esp32_panel_4inch';
                         ArraySocket[i].id = MessageJson.ssdp[i].id;
                         ArraySocket[i].id_for_use_ch1 = MessageJson.ssdp[i].id + 'type_1ch';
                         ArraySocket[i].id_for_use_ch2 = MessageJson.ssdp[i].id + 'type_2ch';
@@ -940,7 +941,6 @@ function WebSocketOpen(SocketItemDevice) {
         if ('zigbee' in MessageJson) {
             for (let i = 0; ArraySocket.length > i; i++) {
                 if (ArraySocket[i].id === SocketItemDevice.id) {
-                    ArraySocket[i].zigbee = MessageJson.zigbee;
                 }
             }
         }
@@ -970,7 +970,7 @@ function WebSocketOpen(SocketItemDevice) {
                 }
             }
         }
-        if ('config_2ch' in MessageJson) {
+        if ('config_2ch' in MessageJson /*'config' in MessageJson*/) {
             for (let i = 0; ArraySocket.length > i; i++) {
                 ArraySocket[i].config_2ch = MessageJson.config_2ch;
                 if (ArraySocket[i].id === SocketItemDevice.id && !PanelMenu) {
@@ -984,7 +984,7 @@ function WebSocketOpen(SocketItemDevice) {
                 }
             }
         }
-        if ('update_1ch' in MessageJson) {
+        if ('update_1ch' in MessageJson /*'update' in MessageJson*/) {
             for (let i = 0; ArraySocket.length > i; i++) {
                 if (ArraySocket[i].id === SocketItemDevice.id & !configActive && SocketItemDevice.type === 'esp32_panel_4inch') {
                     ArraySocket[i].update_1ch = MessageJson.update_1ch;
@@ -1001,7 +1001,7 @@ function WebSocketOpen(SocketItemDevice) {
                 }
             }
         }
-        if ('update_2ch' in MessageJson) {
+        if ('update_2ch' in MessageJson/* 'update' in MessageJson*/) {
             for (let i = 0; ArraySocket.length > i; i++) {
 
                 if (ArraySocket[i].id === SocketItemDevice.id & !configActive && SocketItemDevice.type === 'esp32_panel_4inch') {
@@ -2124,6 +2124,7 @@ function NavSettings() {
     let ComposedStyleWifi = getComputedStyle(PasswordBlockWifimenu);
     if (this.parentElement.parentElement.id === 'MQTTPage' & ComposedStyleMqtt.display != 'none') {
         SwitchElem(MQTTReceivedInfo, MqttInputData);
+        //ConnectMQTTBtn.style.display = 'flex';
         DisconnectMQTTBtn.style.display = 'flex';
     }
     else if (this.parentElement.parentElement.id === 'WifiPage' & ComposedStyleWifi.display != 'none') {
