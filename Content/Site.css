@@ -1313,7 +1313,7 @@ input[type=range]::-webkit-slider-thumb {
     display: none;
 }
 
-#WifiPasswordPanel, #SelectChannel, #TypeResystancePanel, #TermostatTempSettingPanel, #MinMaxTemp, #Gisteresis {
+#WifiPasswordPanel, #SelectChannel, #TypeResystancePanel, #TermostatTempSettingPanel, #MinMaxTemp, #Gisteresis, #SelectPower {
     display: none;
 }
 

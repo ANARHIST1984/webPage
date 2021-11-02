@@ -91,6 +91,7 @@ let FirstConfigurate = false;
 let TypeFirstConfigurate = '';
 let FirstSettingChecker = true;
 let SelectingTypeChannel = document.querySelectorAll('.SelectingTypeChannel');
+let SelectingPowerChannel = document.querySelectorAll('.SelectingPowerChannel');
 var WifiIconArray = [
     '<svg width="22" height="16" viewBox="0 0 22 16" fill="none"><path d = "M0 5.00001L2 7.00001C6.97 2.03001 15.03 2.03001 20 7.00001L22 5.00001C15.93 -1.06999 6.08 -1.06999 0 5.00001ZM8 13L11 16L14 13C12.35 11.34 9.66 11.34 8 13ZM4 9.00001L6 11C8.76 8.24001 13.24 8.24001 16 11L18 9.00001C14.14 5.14001 7.87 5.14001 4 9.00001Z" fill = "#818288"/></svg >',
     '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d = "M1 9.00001L3 11C7.97 6.03001 16.03 6.03001 21 11L23 9.00001C16.93 2.93001 7.08 2.93001 1 9.00001ZM9 17L12 20L15 17C13.35 15.34 10.66 15.34 9 17ZM5 13L7 15C9.76 12.24 14.24 12.24 17 15L19 13C15.14 9.14001 8.87 9.14001 5 13Z" fill = "#818288" /><path d="M9 17.0001L12 20.0001L15 17.0001C13.35 15.3401 10.66 15.3401 9 17.0001Z" fill="white" /></svg >',
@@ -165,7 +166,8 @@ var configPanelChannel = {
             "sensor_corr": "0.00",
             "hysteresis": "1.00",
             "max_temp": "40",
-            "min_temp": "15"
+            "min_temp": "15",
+            "power": '8'
         }
     },
     ConfCh2: {
@@ -176,7 +178,8 @@ var configPanelChannel = {
             "sensor_corr": "0.00",
             "hysteresis": "1.00",
             "max_temp": "40",
-            "min_temp": "15"
+            "min_temp": "15",
+            "power": '8'
         }
     },
 }
@@ -230,6 +233,12 @@ function FirstSettingsTools() {
         SelectingTypeChannel.forEach(item => {
             item.onclick = function () {
                 SelectTypePanelChannel(this);
+            }
+        });
+        SelectPowerChannel(SelectingPowerChannel[0]);
+        SelectingPowerChannel.forEach(item => {
+            item.onclick = function () {
+                SelectPowerChannel(this);
             }
         });
         let ResistanceKey = getKeyByValue(SensorIdCollection, 4);
@@ -289,6 +298,24 @@ function FirstSettingsTools() {
         FirstTempSetting.onclick = function () { SwitchElem(FourStageSettingDissapearElem, TempStageSetting); }
     }
     InDevelopFunction.forEach(item => item.onclick = ShowInDevelop);
+}
+function SelectPowerChannel(item) {
+    SelectingPowerChannel.forEach(item => item.querySelector('.SelectedIcon').style.display = 'none');
+    item.querySelector('.SelectedIcon').style.display = 'block';
+    if (item.id === '16A') {
+        if (FirstChannelSelectChecker) {
+            configPanelChannel.ConfCh2.config_2ch.power = '16';
+        } else {
+            configPanelChannel.ConfCh1.config_1ch.power = '16';
+        }
+    }
+    if (item.id === '8A') {
+        if (FirstChannelSelectChecker) {
+            configPanelChannel.ConfCh2.config_2ch.power = '8';
+        } else {
+            configPanelChannel.ConfCh1.config_1ch.power = '8';
+        }
+    }
 }
 function SelectTypePanelChannel(item) {
     SelectingTypeChannel.forEach(item => item.querySelector('.SelectedIcon').style.display = 'none');
@@ -423,6 +450,19 @@ function PanelSettingNav() {
                 if (ResistanceItem != null) {
                     SelectResistance(ResistanceItem);
                 }
+            }
+        }
+        if (ClassName === 'SelectPower') {
+            SelectPowerChannel(SelectingPowerChannel[0]);
+            SelectingPowerChannel.forEach(item => {
+                item.onclick = function () {
+                    SelectPowerChannel(this);
+                }
+            });
+            if (FirstChannelSelectChecker) {
+                SelectingPowerChannel[1].style.display = 'none';
+            } else {
+                SelectingPowerChannel[1].style.display = 'flex';
             }
         }
         let TargetNavElem = this;
@@ -816,7 +856,6 @@ function WebSocketOpen(SocketItemDevice) {
                     if (ArraySocket[i] && ArraySocket[i].Socket === this) {
                         ArraySocket[i].ssdp = MessageJson.ssdp;
                         ArraySocket[i].type = MessageJson.ssdp[i].type;
-                        //ArraySocket[i].type = 'esp32_panel_4inch';
                         ArraySocket[i].id = MessageJson.ssdp[i].id;
                         ArraySocket[i].id_for_use_ch1 = MessageJson.ssdp[i].id + 'type_1ch';
                         ArraySocket[i].id_for_use_ch2 = MessageJson.ssdp[i].id + 'type_2ch';
