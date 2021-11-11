@@ -702,13 +702,22 @@ input[type=range]::-webkit-slider-thumb {
 #NameInput {
     width: 100%;
     border: none;
-    border-bottom: 2px solid #2C98F0;
     background: none;
     border-bottom-left-radius: 2px;
     border-bottom-right-radius: 2px;
     color: #FFFFFF;
     outline: none;
     padding: 6px;
+}
+
+#NameChangeIcon {
+    display: none;
+}
+
+#DeviceNameChangeBlock {
+    border-bottom: 2px solid #2C98F0;
+    width: 100%;
+    display: flex;
 }
 
 .AvailableUpdate, .MqttConnect, .WifiConnect, #OnlyMqtt {
@@ -727,6 +736,7 @@ input[type=range]::-webkit-slider-thumb {
 
 #AliceOnlyMqtt {
     display: none;
+    font-size: 13px;
 }
 
 .WifiConnect {
@@ -789,6 +799,19 @@ input[type=range]::-webkit-slider-thumb {
     align-items: center;
     flex-direction: column;
     padding: 30px;
+}
+
+#UpdateDisplayBtn {
+    width: 100%;
+}
+
+.UpdateHideBtn {
+    flex-direction: column;
+}
+
+#UpdateDispleyBlock {
+    width: 93%;
+    display: none;
 }
 
 .CurrentVersion {
@@ -1100,7 +1123,7 @@ input[type=range]::-webkit-slider-thumb {
 .show {
     display: flex;
     visibility: visible;
-    -webkit-animation: fadeIn 1s;
+    -webkit-animation: fadeIn 0.5s;
     animation: fadeIn 1s;
 }
 
@@ -1259,7 +1282,7 @@ input[type=range]::-webkit-slider-thumb {
     color: #FFFFFF;
 }
 
-#AliceLink {
+#AliceLink, #Registration {
     display: flex;
     justify-content: space-between;
 }

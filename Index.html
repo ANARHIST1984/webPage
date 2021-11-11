@@ -266,7 +266,14 @@
                             <div class="TitleInputName">
                                 Имя
                             </div>
-                            <input type="text" id="NameInput" />
+                            <div id="DeviceNameChangeBlock">
+                                <input type="text" id="NameInput" oninput="ShowIcon()" />
+                                <div id="NameChangeIcon">
+                                    <svg width="20" height="15" viewBox="0 0 20 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M0 8.13808L6.84888 15L20 1.86194L18.1119 0L6.84888 11.2499L1.86191 6.26303L0 8.13808Z" fill="#2C98F0" />
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
                         <div class="SettingItem AvialableNotification" id="UpdateSetting">
                             Обновление
@@ -423,7 +430,12 @@
                             </div>
                         </div>
                         <div class="ChangeTempPositionInfo">
-                            Для смены вывода текущей и целевой температуры нажмите кнопку ниже
+                            <p>
+                                Для смены вывода текущей и целевой температуры нажмите кнопку ниже
+                            </p>
+                            <p>
+                                Для изменения порогов температуры необходимо сбросить устройство и заново произвести первоначальную конфигурацию
+                            </p>
                         </div>
                         <div id="ChangeTempPositionPopUp" class="InDevelopClass">
                             <div id="InDevelopBlock">
@@ -611,8 +623,14 @@
                         </div>
                     </div>
                     <div class="BtnMenu UpdateHideBtn">
-                        <button id="ChooseUpdateFileBtn" class="BtnBlue BtnGrey" type="button" name="button">Выбрать файл</button>
-                        <button id="UpdateLytkoBtn" class="BtnBlue" type="button" name="button">Обновить</button>
+                        <div>
+                            <button id="ChooseUpdateFileBtn" class="BtnBlue BtnGrey" type="button" name="button">Выбрать файл</button>
+                            <button id="UpdateLytkoBtn" class="BtnBlue" type="button" name="button">Обновить</button>
+                        </div>
+                        <div id="UpdateDispleyBlock">
+                            <button id="UpdateDisplayBtn" class="BtnBlue" type="button" name="button">Обновить экран</button>
+                        </div>
+
                     </div>
                 </div>
                 <div id="ZigBeePage" class="Tab ZigBeeSetting">
@@ -784,7 +802,7 @@
                                         Адрес
                                     </label>
                                     <div class="InputInfo">
-                                        <input class="StandartInput" type="text" id="AdressMqtt" placeholder="Введите адрес сервера" />
+                                        <input class="StandartInput" type="text" id="AdressMqtt" placeholder="Введите адрес сервера*" />
                                     </div>
                                 </div>
                                 <div class="PassworWifiAreaBottomLine"></div>
@@ -795,7 +813,7 @@
                                         Порт
                                     </label>
                                     <div class="InputInfo">
-                                        <input class="StandartInput" type="text" id="PortMqtt" placeholder="Введите порт" />
+                                        <input class="StandartInput" type="text" id="PortMqtt" placeholder="Введите порт*" />
                                     </div>
                                 </div>
                                 <div class="PassworWifiAreaBottomLine"></div>
@@ -1025,9 +1043,16 @@
                         </div>
                         <div class="SettingItemAccount" id="Registration">
                             Регистрация
+                            <div class="InfoIcon" id="RegistrationPopUp">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="10" cy="10" r="10" fill="#035CD0" />
+                                    <rect x="9" y="9" width="2" height="6" fill="white" />
+                                    <rect x="9" y="5" width="2" height="2" fill="white" />
+                                </svg>
+                            </div>
                         </div>
                         <div class="SettingItemAccount" id="AliceLink">
-                            <label>Голосовые помощники</label>
+                            <label>Голос. помощники</label>
                             <div id="AliceOnlyMqtt">
                                 Не доступно с MQTT
                             </div>
@@ -1085,6 +1110,38 @@
                             </div>
                             <div class="BtnMenu">
                                 <button id="CloseAliceInfo" class="BtnBlue" type="button" name="button">Готово</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="DropUpWindowBasic" id="DropUpRegistrationInfo">
+                        <div class="DropUpWindow DropUpAlice">
+                            <div class="DropUpWindowTitle">Регистрация</div>
+                            <div class="DropUpWindowInfo AliceInfo">
+                                <p>
+                                    Для того, чтобы подключить термостат к системе Яндекс.Алиса, понадобится зарегистрировать аккаунт на lytko.com. Для этого нажмите кнопку “Регистрация” и следуйте инструкциям
+                                </p>
+                                <p>
+                                    Также, данный аккаунт можно использовать для управления термостатом по MQTT. Для этого во вкладке “MQTT” введите следующие данные:
+                                </p>
+                                <p>
+                                    <ul>
+                                        <li>
+                                            Адрес - lytko.com
+                                        </li>
+                                        <li>
+                                            Порт - 1883
+                                        </li>
+                                        <li>
+                                            Логин - Ваш логин от учётной записи
+                                        </li>
+                                        <li>
+                                            Пароль - Ваш пароль от учётной записи
+                                        </li>
+                                    </ul>
+                                </p>
+                            </div>
+                            <div class="BtnMenu">
+                                <button id="CloseRegistrationInfo" class="BtnBlue" type="button" name="button">Готово</button>
                             </div>
                         </div>
                     </div>
