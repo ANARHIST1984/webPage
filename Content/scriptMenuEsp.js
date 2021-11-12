@@ -1261,6 +1261,7 @@ function ShowMainMenuBySocket(Socket) {
         SetLoader(5, function () { window.close(); })
     }
     let NameChangeIcon = document.getElementById('NameChangeIcon');
+    InputName.onclick = ShowIcon;
     function ShowIcon() {
         NameChangeIcon.style.display = 'block';
     }
