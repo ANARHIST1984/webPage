@@ -22,6 +22,7 @@ let MQTTReceivedInfo = document.getElementById('MQTTReceivedInfo');
 let ConnectMQTTBtn = document.getElementById('ConnectMQTTBtn');
 let DisconnectMQTTBtn = document.getElementById('DisconnectMQTTBtn');
 let ZigBeeSensors = document.getElementById('ZigBeeSensors');
+let ClearZigBee = document.getElementById('ClearZigBee');
 let DisconnectBtnZigBee = document.getElementById('DisconnectBtnZigBee');
 let MqttInputData = document.getElementById('MqttInputData');
 let ConnectInnerSensorBtn = document.getElementById('ConnectInnerSensorBtn');
@@ -826,7 +827,7 @@ function ChangeTempDynamic() {
 }
 window.onload = function () {
     ArraySocket.push(ArraySocketItem = {
-        Socket: new WebSocket("ws://" + location.host + "/ws"),
+        Socket: new WebSocket("ws://"+ location.host +"/ws"),
         config: null,
         config_1ch: null,
         config_2ch: null,
@@ -927,8 +928,25 @@ function WebSocketOpen(SocketItemDevice) {
                         }
                         else if (configActive === 0) {
                             let DeviceBlockCheck = document.getElementById(ArraySocket[i].id);
-                            if (!DeviceBlockCheck && ArraySocket[i].type != 'esp32_panel_4inch')
+                            if (!DeviceBlockCheck && ArraySocket[i].type != 'esp32_panel_4inch') {
                                 CreateDeviceBlock(SocketItemDevice, ArraySocket[i].type);
+                            }
+                            else if (ArraySocket[i].type === 'esp32_panel_4inch') {
+                                let DeviceBlockCh1 = document.getElementById(ArraySocket[i].id_for_use_ch1);
+                                let DeviceBlockCh2 = document.getElementById(ArraySocket[i].id_for_use_ch2);
+                                if (DeviceBlockCh1) {
+                                    let NameBlockCh1 = DeviceBlockCh1.querySelector('.DeviceBlockTitle');
+                                    NameBlockCh1.innerHTML = ArraySocket[i].config.name;
+                                }
+                                if (DeviceBlockCh2) {
+                                    let NameBlockCh2 = DeviceBlockCh2.querySelector('.DeviceBlockTitle');
+                                    NameBlockCh2.innerHTML = ArraySocket[i].config.name;
+                                }
+
+                            } else if (DeviceBlockCheck) {
+                                let NameBlock = DeviceBlockCheck.querySelector('.DeviceBlockTitle');
+                                NameBlock.innerHTML = ArraySocket[i].config.name;
+                            }
                             NavigationMainMenu();
                             if (CurrentSocket) {
                                 ChangeTargetTemp();
@@ -1040,7 +1058,7 @@ function WebSocketOpen(SocketItemDevice) {
                 }
             }
         }
-        if ('config_2ch' in MessageJson /*'config' in MessageJson*/) {
+        if ('config_2ch' in MessageJson) {
             for (let i = 0; ArraySocket.length > i; i++) {
                 ArraySocket[i].config_2ch = MessageJson.config_2ch;
                 if (ArraySocket[i].id === SocketItemDevice.id && !PanelMenu) {
@@ -1057,7 +1075,7 @@ function WebSocketOpen(SocketItemDevice) {
                 }
             }
         }
-        if ('update_1ch' in MessageJson /*'update' in MessageJson*/) {
+        if ('update_1ch' in MessageJson) {
             for (let i = 0; ArraySocket.length > i; i++) {
                 if (ArraySocket[i].id === SocketItemDevice.id & !configActive && SocketItemDevice.type === 'esp32_panel_4inch') {
                     ArraySocket[i].update_1ch = MessageJson.update_1ch;
@@ -1074,7 +1092,7 @@ function WebSocketOpen(SocketItemDevice) {
                 }
             }
         }
-        if ('update_2ch' in MessageJson/* 'update' in MessageJson*/) {
+        if ('update_2ch' in MessageJson) {
             for (let i = 0; ArraySocket.length > i; i++) {
                 if (SocketItemDevice.type_2ch != 'none')
                     if (ArraySocket[i].id === SocketItemDevice.id & !configActive && SocketItemDevice.type === 'esp32_panel_4inch') {
@@ -1403,8 +1421,19 @@ function UpdateSet() {
     ChooseUpdateFileBtn.onclick = function () {
         window.location.href = "//" + CurrentSocket.ip + "/manual_update";
     }
-    if (CurrentSocket.config.dwin_link != undefined & CurrentSocket.config.dwin_link != null & CurrentSocket.config.dwin_link != '{}') {
-        UpdateDispleyBlock.style.display = 'block';
+    let UpdateDisplayBtn = document.getElementById('UpdateDisplayBtn');
+    if (CurrentSocket.type === 'esp8266_thermostat_plus') {
+        if (CurrentSocket.config.dwin_link != undefined & CurrentSocket.config.dwin_link != null & CurrentSocket.config.dwin_link != '{}') {
+            UpdateDispleyBlock.style.display = 'block';
+            UpdateDisplayBtn.removeAttribute('disabled');
+            UpdateDisplayBtn.style.background = '#035CD0';
+        } else {
+            UpdateDispleyBlock.style.display = 'block';
+            UpdateDisplayBtn.setAttribute('disabled', 'disabled');
+            UpdateDisplayBtn.style.background = '#1F3C62';
+        }
+    } else {
+        UpdateDispleyBlock.style.display = 'none';
     }
     UpdateDisplayBtn.onclick = function () {
         CurrentSocket.Socket.send(JSON.stringify(
@@ -1608,19 +1637,23 @@ function InsertMqtt() {
         ));
     }
     ConnectMQTTBtn.onclick = function () {
-        if (AdressMqtt.value != '' & PortMqtt.value != '') {
-            CurrentSocket.Socket.send(JSON.stringify(
-                {
-                    "mqtt_connect": {
-                        "mqtt_server": AdressMqtt.value.trim(),
-                        "mqtt_port": PortMqtt.value.trim(),
-                        "mqtt_login": LoginMqtt.value.trim(),
-                        "mqtt_password": PasswordMqtt.value.trim()
+        let mqttConnectPopup = document.getElementById('MqttConnectPopup');
+        TogglePopUp(mqttConnectPopup);
+        setTimeout(function () {
+            if (AdressMqtt.value != '' & PortMqtt.value != '') {
+                CurrentSocket.Socket.send(JSON.stringify(
+                    {
+                        "mqtt_connect": {
+                            "mqtt_server": AdressMqtt.value.trim(),
+                            "mqtt_port": PortMqtt.value.trim(),
+                            "mqtt_login": LoginMqtt.value.trim(),
+                            "mqtt_password": PasswordMqtt.value.trim()
+                        }
                     }
-                }
-            ));
-            SetLoader(5, function () { location.host = location.host; });
-        }
+                ));
+                SetLoader(5, function () { location.host = location.host; });
+            }
+        }, 2000);
     }
     DisconnectMQTTBtn.onclick = function () {
         CurrentSocket.Socket.send(JSON.stringify({ "mqtt_disconnect": 1 }));
@@ -1814,6 +1847,14 @@ function ZigBeeSet() {
             }
         ));
         SetLoader(30, function () { location.host = location.host; });
+    }
+    ClearZigBee.onclick = function () {
+        CurrentSocket.Socket.send(JSON.stringify(
+            {
+                clear_zigbee_module: 1
+            }
+        ));
+        SetLoader(4, function () { location.host = location.host; });
     }
     if (CurrentSocket.zigbee != null & CurrentSocket.zigbee != undefined & CurrentSocket.zigbee != '{}') {
         if (CurrentSocket.zigbee[4] === null || CurrentSocket.zigbee[4] === undefined) {
